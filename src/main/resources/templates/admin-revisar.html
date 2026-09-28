@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revisar cadastro — TexCiclo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/styles.css}">
+<link rel="stylesheet" th:href="@{/css/platform.css}">
+</head>
+<body>
+
+<div class="auth-shell" style="padding-top:24px; padding-bottom:24px;">
+
+    <div class="auth-logo">Tex<span class="dot">Ciclo</span></div>
+
+    <div class="auth-card" style="max-width:600px;">
+
+        <h1 style="margin-bottom:4px;">Revisar cadastro</h1>
+        <p class="auth-sub" style="margin-bottom:20px;">Confira os dados enviados antes de decidir.</p>
+
+        <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+            <div><strong>Nome / Empresa:</strong> <span th:text="${usuario.nome}"></span></div>
+            <div><strong>Tipo:</strong> <span th:text="${usuario.tipo}"></span></div>
+            <div><strong>Cidade:</strong> <span th:text="${usuario.cidade}"></span></div>
+            <div><strong>CNPJ:</strong> <span th:text="${usuario.cnpj}"></span></div>
+            <div><strong>Telefone:</strong> <span th:text="${usuario.telefone}"></span></div>
+            <div><strong>E-mail:</strong> <span th:text="${usuario.email}"></span></div>
+            <div th:if="${usuario.descricao != null and !usuario.descricao.isEmpty()}">
+                <strong>Descrição:</strong> <span th:text="${usuario.descricao}"></span>
+            </div>
+            <div>
+                <strong>Documento comprobatório:</strong>
+                <a th:if="${usuario.documentoComprovante != null}" th:href="@{'/uploads/' + ${usuario.documentoComprovante}}" target="_blank">Abrir documento</a>
+                <span th:if="${usuario.documentoComprovante == null}">Não enviado</span>
+            </div>
+            <div>
+                <strong>Foto de perfil:</strong>
+                <a th:if="${usuario.fotoPerfil != null}" th:href="@{'/uploads/' + ${usuario.fotoPerfil}}" target="_blank">Ver foto</a>
+                <span th:if="${usuario.fotoPerfil == null}">Não enviada</span>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:28px;">
+            <a th:href="@{'/admin/aprovar/' + ${usuario.tokenAprovacao}}" class="btn btn-primary" style="flex:1; justify-content:center;">Aprovar</a>
+            <a th:href="@{'/admin/rejeitar/' + ${usuario.tokenAprovacao}}" class="btn btn-ghost" style="flex:1; justify-content:center; color:var(--text-on-paper); border-color:var(--line);">Rejeitar</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

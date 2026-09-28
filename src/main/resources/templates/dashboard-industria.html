@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Painel da Indústria — TexCiclo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <link rel="stylesheet" th:href="@{/css/platform.css}">
+    <link rel="stylesheet" th:href="@{/css/texciclo-pagamento.css}">
+    <link rel="stylesheet" th:href="@{/css/demo-info.css}" th:if="${demoMode}">
+
+    <style>
+        /* Meus lotes: o status precisa ter espaço suficiente para
+           "Aguardando retirada" sem invadir a coluna Documento. */
+        #painel-lotes .lot-table th:nth-child(5) {
+            width: 18%;
+            min-width: 150px;
+        }
+
+        #painel-lotes .lot-table th:nth-child(6) {
+            width: 26%;
+            min-width: 190px;
+        }
+
+        #painel-lotes .lot-table td:nth-child(5),
+        #painel-lotes .lot-table td:nth-child(6) {
+            vertical-align: middle;
+        }
+
+        #painel-lotes .lot-table td:nth-child(5) .chip {
+            white-space: nowrap;
+        }
+    </style>
+
+</head>
+
+<body th:attr="data-demo-mode=${demoMode},data-demo-perfil=${demoPerfil}">
+
+    <header class="app-nav">
+
+        <div class="app-nav-inner">
+
+            <a th:href="@{/}" class="app-logo">
+                <img src="/images/logo.png" alt="TexCiclo">
+                Tex<span class="dot">Ciclo</span>
+            </a>
+
+            <div class="app-nav-right">
+
+                <span class="role-badge role-badge--industria">
+                    Indústria
+                </span>
+
+                <button type="button" id="btnTopoAssinatura" class="top-signature-button" aria-expanded="false" aria-controls="gerenciadorAssinatura">
+                    Assinatura digital
+                </button>
+
+                <div class="user-chip">
+
+                    <span class="user-dot" th:if="${usuarioLogado != null and usuarioLogado.fotoPerfil == null}"
+                        th:text="${usuarioLogado.nome != null and !usuarioLogado.nome.isEmpty()
+                        ? #strings.substring(usuarioLogado.nome, 0, 1)
+                        : '?'}">
+                        ?
+                    </span>
+
+                    <img th:if="${usuarioLogado != null and usuarioLogado.fotoPerfil != null}"
+                        th:src="@{'/uploads/' + ${usuarioLogado.fotoPerfil}}" alt="Foto de perfil" style="
+                        width:30px;
+                        height:30px;
+                        border-radius:50%;
+                        object-fit:cover;
+                    ">
+
+                    <span id="userName" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Visitante'}">
+                        Visitante
+                    </span>
+
+                </div>
+
+                <a th:if="${session.demoMode == true}"
+                   th:href="@{/teste-perfis}"
+                   class="btn btn-primary btn-sm">
+                    Trocar perfil
+                </a>
+
+                <a th:unless="${session.demoMode == true}"
+                   th:href="@{/logout}"
+                   class="btn btn-ghost btn-sm" style="
+                    color:var(--text-on-ink);
+                    border-color:rgba(231,224,205,0.4);
+                ">
+                    Sair
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="app-main">
+
+        <div class="wrap">
+
+            <div class="app-head">
+
+                <span class="eyebrow">
+                    Painel da indústria
+                </span>
+
+                <h1>
+                    Seus lotes de resíduo, em um só lugar.
+                </h1>
+
+                <p>
+                    Cadastre lotes, acompanhe solicitações
+                    e disponibilize materiais para
+                    doação ou venda.
+                </p>
+
+            </div>
+
+            <div th:if="${param.sucesso}" class="notice-box" style="margin-bottom:20px;">
+
+                <strong>Sucesso!</strong>
+
+                <span th:if="${param.sucesso[0] == 'lote'}">
+                    O lote foi cadastrado e já está disponível
+                    para o público correspondente.
+                </span>
+
+                <span th:if="${param.sucesso[0] == 'aceita'}">
+                    A solicitação foi aceita e os documentos
+                    foram gerados.
+                </span>
+
+                <span th:if="${param.sucesso[0] == 'assinatura'}">
+                    Sua assinatura digital foi salva e os PDFs da indústria foram atualizados.
+                </span>
+                <span th:if="${param.sucesso[0] == 'retirada'}">
+                    A retirada foi confirmada com sucesso.
+                </span>
+
+            </div>
+
+            <div th:if="${param.erro}" class="notice-box" style="
+                margin-bottom:20px;
+                border-left:4px solid #b33;
+            ">
+
+                Não foi possível concluir a operação.
+
+                <span th:if="${param.erro[0] == 'imagem'}">
+                    A imagem deve ser JPG, PNG ou WEBP.
+                </span>
+
+                <span th:if="${param.erro[0] == 'peso'}">
+                    Informe um peso maior que zero.
+                </span>
+
+                <span th:if="${param.erro[0] == 'tecido'}">
+                    Informe o tipo de tecido.
+                </span>
+
+                <span th:if="${param.erro[0] == 'finalidade'}">
+                    Escolha Doação ou Venda.
+                </span>
+
+                <span th:if="${param.erro[0] == 'pdf'}">
+                    O lote foi salvo, mas o PDF não pôde ser gerado.
+                </span>
+
+                <span th:if="${param.erro[0] == 'solicitacao'}">
+                    A solicitação não foi encontrada.
+                </span>
+
+                <span th:if="${param.erro[0] == 'permissao'}">
+                    Você não possui permissão para realizar esta ação.
+                </span>
+                <span th:if="${param.erro[0] == 'comunicacao-expirada'}">
+                    Os dados de contato desta solicitação não estão mais disponíveis porque o processo já foi encerrado.
+                </span>
+
+                <span th:if="${param.erro[0] == 'pin'}">PIN incorreto. Confira com o solicitante e tente
+                    novamente.</span>
+                <span th:if="${param.erro[0] == 'assinatura'}">Não foi possível salvar a assinatura digital. Desenhe a assinatura novamente.</span>
+                <span th:if="${param.erro[0] == 'confirmacao-assinatura'}">Confirme a alteração da assinatura antes de salvar.</span>
+                <span th:if="${param.erro[0] == 'pagamento'}">
+                    O pagamento da venda ainda não foi confirmado.
+                </span>
+
+            </div>
+
+            <section class="signature-manager" id="gerenciadorAssinatura" hidden>
+                <div class="signature-manager__content">
+                    <div>
+                        <span class="eyebrow">Assinatura digital</span>
+                        <h2>
+                            Assine os documentos emitidos pela TexCiclo.
+                        </h2>
+                        <p class="signature-manager__text">
+                            A assinatura é exclusiva da indústria e fica salva no seu cadastro.
+                            Ela será inserida automaticamente nos termos em PDF.
+                        </p>
+                    </div>
+
+                    <div class="signature-manager__preview">
+                        <div class="signature-preview-box"
+                             th:if="${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()}">
+                            <img th:src="@{'/uploads/' + ${usuarioLogado.assinaturaDigital}}"
+                                 alt="Sua assinatura digital">
+                            <span>Assinatura cadastrada</span>
+                        </div>
+
+                        <div class="signature-empty"
+                             th:if="${usuarioLogado.assinaturaDigital == null or usuarioLogado.assinaturaDigital.isEmpty()}">
+                            <strong>Você ainda não possui uma assinatura.</strong>
+                            <span>Crie uma para que ela seja colocada nos próximos PDFs.</span>
+                        </div>
+
+                        <button type="button"
+                                id="btnAssinatura"
+                                class="signature-button"
+                                th:classappend="${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()} ? ' signature-button--saved' : ''"
+                                th:attr="data-possui-assinatura=${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()}">
+                            <span th:if="${usuarioLogado.assinaturaDigital == null or usuarioLogado.assinaturaDigital.isEmpty()}">
+                                Criar assinatura digital
+                            </span>
+                            <span th:if="${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()}">
+                                Assinatura cadastrada · Alterar
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="dash-tabs">
+
+                <button type="button" class="dash-tab"
+                    th:classappend="${param.aba == null or param.aba[0] == 'lotes'} ? ' active' : ''"
+                    data-target="painel-lotes">
+                    Meus lotes
+                </button>
+
+                <button type="button" class="dash-tab" data-target="painel-novo-lote">
+                    Novo lote
+                </button>
+
+                <button type="button" class="dash-tab"
+                    th:classappend="${param.aba != null and param.aba[0] == 'solicitacoes'} ? ' active' : ''"
+                    data-target="painel-solicitacoes">
+                    Solicitações
+                </button>
+
+                <button type="button" class="dash-tab" data-target="painel-sustentabilidade">
+                    Sustentabilidade
+                </button>
+
+            </div>
+
+            <section class="panel" id="painel-lotes">
+
+                <table class="lot-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Tecido</th>
+                            <th>Peso disponível</th>
+                            <th>Finalidade</th>
+                            <th>Status</th>
+                            <th>Documento</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="lote : ${lotes}">
+
+                            <td>
+
+                                <img th:if="${lote.imagem != null}" th:src="@{'/uploads/' + ${lote.imagem}}"
+                                    alt="Imagem do lote" style="
+                                    width:60px;
+                                    height:60px;
+                                    object-fit:cover;
+                                    border-radius:8px;
+                                ">
+
+                                <span th:if="${lote.imagem == null}">
+                                    Sem imagem
+                                </span>
+
+                            </td>
+
+                            <td th:text="${lote.tipoTecido}">
+                                Tecido
+                            </td>
+
+                            <td th:text="${lote.peso + ' kg'}">
+                                0 kg
+                            </td>
+
+                            <td th:text="${lote.finalidade == 'doacao'
+                                ? 'Doação'
+                                : 'Venda'}">
+                                Venda
+                            </td>
+
+                            <td>
+
+                                <span class="chip chip--disponivel" th:text="${lote.status}">
+                                    Disponível
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <a th:if="${lote.pdfCompromisso != null}"
+                                    th:href="@{'/uploads/' + ${lote.pdfCompromisso}}" target="_blank"
+                                    class="btn-tabela">
+                                    Ver compromisso
+                                </a>
+
+                                <span th:if="${lote.pdfCompromisso == null}">
+                                    Não necessário
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <p th:if="${#lists.isEmpty(lotes)}" class="empty-note">
+                    Você ainda não cadastrou nenhum lote.
+                </p>
+
+            </section>
+
+            <section class="panel" id="painel-novo-lote" hidden>
+
+                <form th:action="@{/lotes}" method="post" enctype="multipart/form-data">
+
+                    <div class="lote-form-grid">
+
+                        <div class="lote-form-field">
+
+                            <label for="tipoTecido">
+                                Tipo de tecido
+                            </label>
+
+                            <input type="text" id="tipoTecido" name="tipoTecido"
+                                placeholder="Ex.: Algodão, malha, poliéster..." required>
+
+                        </div>
+
+                        <div class="lote-form-field">
+
+                            <label for="peso">
+                                Peso do lote
+                            </label>
+
+                            <div class="input-sufixo">
+
+                                <input type="number" id="peso" name="peso" min="0.1" step="0.1" placeholder="Ex.: 150"
+                                    required>
+
+                                <span>kg</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="lote-form-field" id="campoPreco" hidden>
+                            <label for="preco">Preço total do lote</label>
+                            <div class="input-sufixo">
+                                <input type="number" id="preco" name="preco" min="0.01" step="0.01"
+                                    placeholder="Ex.: 500.00">
+                                <span>R$</span>
+                            </div>
+                        </div>
+
+                        <div class="lote-form-field lote-form-wide">
+
+                            <label>
+                                O que você deseja fazer com o lote?
+                            </label>
+
+                            <div class="opcoes-finalidade">
+
+                                <label class="opcao-finalidade">
+
+                                    <input type="radio" name="finalidade" value="doacao" required>
+
+                                    <span>
+
+                                        <strong>
+                                            Doação
+                                        </strong>
+
+                                        <small>
+                                            Disponibilizar para uma ONG
+                                        </small>
+
+                                    </span>
+
+                                </label>
+
+
+                                <label class="opcao-finalidade">
+
+                                    <input type="radio" name="finalidade" value="venda">
+
+                                    <span>
+
+                                        <strong>
+                                            Venda
+                                        </strong>
+
+                                        <small>
+                                            Disponibilizar para uma microempresa
+                                        </small>
+
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="lote-form-field lote-form-wide">
+
+                            <label>
+                                Foto do material
+                            </label>
+
+                            <label class="upload-area" for="arquivoImagem">
+
+                                <span class="upload-icon">
+                                    +
+                                </span>
+
+                                <strong>
+                                    Clique para escolher uma imagem
+                                </strong>
+
+                                <small>
+                                    JPG, PNG ou WEBP • opcional
+                                </small>
+
+                            </label>
+
+
+                            <input type="file" id="arquivoImagem" name="arquivoImagem"
+                                accept="image/jpeg,image/png,image/webp" hidden>
+
+
+                            <div id="previewImagem" class="preview-imagem" hidden>
+
+                                <img id="imagemPreview" alt="Pré-visualização da imagem">
+
+                            </div>
+
+                        </div>
+
+                        <div class="lote-form-field lote-form-wide">
+
+                            <label class="checkbox-marca">
+
+                                <input type="checkbox" name="temMarca" value="true">
+
+                                <span>
+
+                                    <strong>
+                                        Este material possui marca, etiqueta ou estampa?
+                                    </strong>
+
+                                    <small>
+                                        Se marcado, será gerado o documento de compromisso
+                                        para descaracterização da marca.
+                                    </small>
+
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="lote-form-footer">
+
+                        <button type="submit" class="btn btn-primary">
+                            Cadastrar lote
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+            <section class="panel" id="painel-solicitacoes" hidden>
+
+                <table class="lot-table solicitacoes-industria-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Lote</th>
+                            <th>Solicitante</th>
+                            <th>Finalidade</th>
+                            <th>Status</th>
+                            <th>Pagamento</th>
+                            <th>Ações</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="s : ${solicitacoes}">
+
+                            <td th:text="${s.lote.tipoTecido}">
+                                Tecido
+                            </td>
+
+                            <td th:text="${s.solicitante.nome}">
+                                Solicitante
+                            </td>
+
+                            <td th:text="${s.lote.finalidade == 'doacao'
+                                ? 'Doação'
+                                : 'Venda'}">
+                                Venda
+                            </td>
+
+                            <td>
+
+                                <span class="chip chip--disponivel" th:text="${s.status}">
+                                    PENDENTE
+                                </span>
+
+                            </td>
+
+                            <td class="solicitacoes-industria-pagamento">
+
+                                <span th:if="${s.lote.finalidade == 'venda' and !s.pagamentoConfirmado}"
+                                      class="pagamento-badge pagamento-badge--aguardando">
+                                    Aguardando
+                                </span>
+
+                                <span th:if="${s.lote.finalidade == 'venda' and s.pagamentoConfirmado}"
+                                      class="pagamento-badge pagamento-badge--confirmado">
+                                    Confirmado
+                                </span>
+
+                                <span th:if="${s.lote.finalidade == 'doacao'}"
+                                      class="pagamento-badge pagamento-badge--na"
+                                      aria-label="Pagamento não se aplica">
+                                    —
+                                </span>
+
+                            </td>
+
+                            <td class="solicitacoes-industria-acoes-cell">
+
+                                <div class="solicitacao-acoes">
+
+                                    <span th:if="${s.status == 'PENDENTE'}" class="solicitacao-acoes-pendente">
+                                        <a th:href="@{'/solicitacoes/aceitar/' + ${s.id}}" class="btn btn-primary btn-sm">
+                                            Aceitar
+                                        </a>
+                                        <a th:href="@{'/solicitacoes/recusar/' + ${s.id}}" class="btn btn-recusar btn-sm">
+                                            Recusar
+                                        </a>
+                                    </span>
+
+                                    <span th:if="${s.status == 'ACEITA'}" class="industria-aceita">
+
+                                        <div class="industria-acoes-icones">
+                                            <a th:href="@{'/solicitacoes/' + ${s.id} + '/organizacao'}"
+                                               class="industria-icon-action"
+                                               data-tooltip="Ver Informações"
+                                               aria-label="Ver Informações">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+                                                    <circle cx="12" cy="12" r="2.5"></circle>
+                                                </svg>
+                                            </a>
+
+                                            <a th:if="${s.pdfCompromisso != null}"
+                                               th:href="@{'/uploads/' + ${s.pdfCompromisso}}"
+                                               target="_blank"
+                                               class="industria-icon-action"
+                                               data-tooltip="Ver PDF"
+                                               aria-label="Ver PDF">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path d="M6 3.5h8l4 4v13H6z"></path>
+                                                    <path d="M14 3.5v4h4"></path>
+                                                    <path d="M8.5 15h7"></path>
+                                                    <path d="M8.5 18h5"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+
+                                        <div th:if="${s.lote.finalidade == 'doacao' or s.pagamentoConfirmado}"
+                                             class="industria-retirada-area">
+                                            <form th:action="@{'/solicitacoes/retirar/' + ${s.id}}" method="post"
+                                                  class="pin-confirm-form">
+                                                <input type="text" name="pin" maxlength="4" inputmode="numeric"
+                                                       placeholder="PIN"
+                                                       th:classappend="${param.erro != null and param.erro[0] == 'pin' and param.solicitacao != null and param.solicitacao[0] == s.id.toString()} ? ' pin-input-erro' : ''"
+                                                       required>
+                                                <button type="submit" class="btn btn-primary btn-sm">Confirmar</button>
+                                            </form>
+                                        </div>
+
+                                        <span th:if="${param.erro != null and param.erro[0] == 'pin' and param.solicitacao != null and param.solicitacao[0] == s.id.toString()}"
+                                              class="pin-erro-msg">PIN incorreto.</span>
+
+                                    </span>
+
+                                    <span th:if="${s.status == 'RETIRADA'}" class="status-text">
+                                        Material retirado.
+                                    </span>
+
+                                    <span th:if="${s.status == 'RECUSADA'}" class="status-text">
+                                        Solicitação recusada.
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <p th:if="${#lists.isEmpty(solicitacoes)}" class="empty-note">
+                    Nenhuma solicitação recebida.
+                </p>
+
+            </section>
+
+            <section class="panel" id="painel-sustentabilidade" hidden>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="num" th:text="${#numbers.formatDecimal(usuarioLogado.kgDesviados, 1, 1)} + ' kg'">0
+                            kg</div>
+                        <div class="label">Desviados de aterro</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" th:text="${usuarioLogado.entregasRealizadas}">0</div>
+                        <div class="label">Entregas realizadas</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+    <div class="modal-overlay" id="assinaturaModal" hidden>
+        <div class="modal signature-modal" role="dialog" aria-modal="true" aria-labelledby="assinaturaModalTitulo">
+            <button type="button" class="modal-close" data-modal-close="assinaturaModal" aria-label="Fechar">×</button>
+
+            <h3 id="assinaturaModalTitulo">Criar assinatura digital</h3>
+            <p>
+                Desenhe sua assinatura no quadro abaixo usando o mouse, touchpad ou tela sensível ao toque.
+            </p>
+
+            <canvas id="assinaturaCanvas" class="signature-canvas"
+                    width="720" height="240"
+                    aria-label="Área para desenhar sua assinatura"></canvas>
+
+            <div class="signature-modal-actions">
+                <button type="button" class="btn btn-ghost" id="limparAssinatura">
+                    Limpar
+                </button>
+
+                <form th:action="@{/assinatura/salvar}" method="post" id="assinaturaForm">
+                    <input type="hidden" name="assinatura" id="assinaturaData">
+                    <input type="hidden" name="confirmarAlteracao" id="confirmarAlteracao" value="false">
+                    <button type="submit" class="btn btn-primary" id="salvarAssinatura" disabled>
+                        Salvar assinatura
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/platform.js(v=3)}"></script>
+    <script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
+
+
+    <script>
+        /*
+         * Se a indústria acabou de fazer login sem assinatura,
+         * o backend envia ?abrirAssinatura=true.
+         * Abrimos automaticamente o modal para ela cadastrar a assinatura.
+         */
+        document.addEventListener("DOMContentLoaded", function () {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get("abrirAssinatura") !== "true") {
+                return;
+            }
+
+            const botaoAssinatura = document.getElementById("btnAssinatura");
+
+            if (!botaoAssinatura
+                    || botaoAssinatura.dataset.possuiAssinatura === "true") {
+                return;
+            }
+
+            setTimeout(function () {
+                botaoAssinatura.click();
+
+                // Remove o parâmetro da URL depois de abrir o modal,
+                // evitando que um F5 tente abrir novamente.
+                const url = new URL(window.location.href);
+                url.searchParams.delete("abrirAssinatura");
+                window.history.replaceState({}, document.title, url.toString());
+            }, 150);
+        });
+    </script>
+
+</body>
+
+</html>

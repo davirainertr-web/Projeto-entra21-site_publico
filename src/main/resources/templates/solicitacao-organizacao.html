@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informações da organização — TexCiclo</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/platform.css}">
+    <style>
+        .info-page { max-width: 900px; margin: 0 auto; padding: 40px 20px 70px; }
+        .info-card { background:#fff; border:1px solid #dfe5e0; border-radius:16px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.05); }
+        .info-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:24px; }
+        .info-item { padding:16px; border:1px solid #e3e8e4; border-radius:12px; background:#fafcf9; }
+        .info-item small { display:block; margin-bottom:6px; color:#65716b; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+        .info-item strong { color:#20312b; word-break:break-word; }
+        .info-wide { grid-column:1/-1; }
+        .privacy-note { margin-top:22px; padding:15px 17px; border-left:4px solid #1f3b36; background:#f1f5f2; border-radius:8px; color:#45524d; line-height:1.6; }
+        .back-link { display:inline-block; margin-bottom:18px; color:#1f3b36; font-weight:700; text-decoration:none; }
+        @media (max-width:700px) { .info-grid { grid-template-columns:1fr; } .info-wide { grid-column:auto; } }
+    </style>
+</head>
+<body>
+<header class="app-nav">
+    <div class="app-nav-inner">
+        <a th:href="@{/}" class="app-logo">
+            <img src="/images/logo.png" alt="TexCiclo">
+            Tex<span class="dot">Ciclo</span>
+        </a>
+        <div class="app-nav-right">
+            <span class="role-badge role-badge--industria">Indústria</span>
+            <a th:href="@{/logout}" class="btn btn-ghost btn-sm" style="color:var(--text-on-ink); border-color:rgba(231,224,205,0.4);">Sair</a>
+        </div>
+    </div>
+</header>
+<main class="app-main">
+    <div class="info-page">
+        <a th:href="@{/industria(aba='solicitacoes')}" class="back-link">← Voltar para solicitações</a>
+        <div class="app-head">
+            <span class="eyebrow">Solicitação aceita</span>
+            <h1>Informações da organização</h1>
+            <p>Consulte os dados necessários para combinar a retirada do material com a organização solicitante.</p>
+        </div>
+        <section class="info-card">
+            <div class="info-grid">
+                <div class="info-item"><small>Nome</small><strong th:text="${organizacao.nome}">Nome da organização</strong></div>
+                <div class="info-item"><small>Tipo</small><strong th:text="${organizacao.tipo}">ONG</strong></div>
+                <div class="info-item"><small>CNPJ</small><strong th:text="${organizacao.cnpj != null && !organizacao.cnpj.isBlank() ? organizacao.cnpj : 'Não informado'}">Não informado</strong></div>
+                <div class="info-item"><small>Cidade</small><strong th:text="${organizacao.cidade}">Cidade</strong></div>
+                <div class="info-item"><small>Telefone</small><strong th:text="${organizacao.telefone != null && !organizacao.telefone.isBlank() ? organizacao.telefone : 'Não informado'}">Não informado</strong></div>
+                <div class="info-item"><small>E-mail</small><strong th:text="${organizacao.email}">email@exemplo.com</strong></div>
+                <div class="info-item info-wide" th:if="${organizacao.descricao != null && !organizacao.descricao.isBlank()}"><small>Descrição</small><strong th:text="${organizacao.descricao}">Descrição da organização</strong></div>
+                <div class="info-item"><small>Material solicitado</small><strong th:text="${solicitacao.lote.tipoTecido}">Algodão</strong></div>
+                <div class="info-item"><small>Quantidade</small><strong th:text="${solicitacao.quantidadeSolicitada != null ? solicitacao.quantidadeSolicitada + ' kg' : 'Não informada'}">0 kg</strong></div>
+            </div>
+            <div class="privacy-note"><strong>Privacidade:</strong> estas informações ficam disponíveis somente enquanto a solicitação estiver <strong>ACEITA</strong> e aguardando a retirada. Depois que o PIN for confirmado, o backend bloqueia novamente o acesso a esta página.</div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

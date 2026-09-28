@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: texciclo-publico
+    runtime: docker
+    plan: free
+    region: ohio
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: texciclo-demo-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: texciclo-demo-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: texciclo-demo-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: texciclo-demo-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: texciclo-demo-db
+          property: password
+
+databases:
+  - name: texciclo-demo-db
+    plan: free
+    region: ohio
+    databaseName: texciclo_demo
+    user: texciclo_demo_user

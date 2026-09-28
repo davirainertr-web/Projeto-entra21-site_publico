@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Indústria</title>
+</head>
+<body>
+
+<h1>Cadastrar indústria</h1>
+
+<form th:action="@{/industria}" th:object="${industria}" method="post">
+    <label>Nome:</label>
+    <input type="text" th:field="*{nome}" required />
+    <br>
+
+    <label>Cidade:</label>
+    <input type="text" th:field="*{cidade}" required />
+    <br>
+
+    <button type="submit">Salvar</button>
+</form>
+
+</body>
+</html>

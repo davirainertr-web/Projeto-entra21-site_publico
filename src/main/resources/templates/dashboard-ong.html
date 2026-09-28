@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Vitrine de doações — TexCiclo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <link rel="stylesheet" th:href="@{/css/platform.css}">
+    <link rel="stylesheet" th:href="@{/css/demo-info.css}" th:if="${demoMode}">
+
+    <style>
+        .solicitar-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .quantidade-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #39423f;
+        }
+
+        .solicitar-form input {
+            width: 100%;
+            min-height: 42px;
+            padding: 0 12px;
+            border: 1px solid #c8d1ca;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #24312c;
+            font-family: inherit;
+            font-weight: 600;
+            box-sizing: border-box;
+        }
+
+        .solicitar-form input:focus {
+            outline: none;
+            border-color: #1f3b36;
+            box-shadow: 0 0 0 3px rgba(31, 59, 54, 0.10);
+        }
+
+        .solicitar-form button {
+            width: 100%;
+            min-height: 42px;
+        }
+
+        .acoes-documentos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Ações da ONG seguem o mesmo padrão visual das ações da Indústria:
+           ícones compactos, sem textos ocupando a tabela. */
+        #painel-minhas .minhas-solicitacao-acoes {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+
+        #painel-minhas .solicitacao-aceita {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        #painel-minhas .industria-acoes-icones {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+        }
+
+        #painel-minhas .industria-icon-action {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid rgba(31,59,54,.20);
+            border-radius: 7px;
+            background: rgba(255,255,255,.42);
+            color: #315f50;
+            text-decoration: none;
+            box-sizing: border-box;
+            transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+        }
+
+        #painel-minhas .industria-icon-action:hover,
+        #painel-minhas .industria-icon-action:focus-visible {
+            background: rgba(31,59,54,.08);
+            border-color: rgba(31,59,54,.42);
+            color: #151d19;
+            transform: translateY(-1px);
+        }
+
+        #painel-minhas .industria-icon-action:focus-visible {
+            outline: 2px solid rgba(201,191,161,.95);
+            outline-offset: 2px;
+        }
+
+        #painel-minhas .industria-icon-action svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.55;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        #painel-minhas .industria-icon-action::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translate(-50%, 4px);
+            padding: 6px 8px;
+            border-radius: 5px;
+            background: #151d19;
+            color: #f6f2e6;
+            font-family: Manrope, sans-serif;
+            font-size: .68rem;
+            font-weight: 600;
+            line-height: 1.1;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .15s ease, transform .15s ease;
+            z-index: 30;
+        }
+
+        #painel-minhas .industria-icon-action:hover::after,
+        #painel-minhas .industria-icon-action:focus-visible::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0);
+        }
+
+        #painel-minhas .contato-industria {
+            margin: 0;
+        }
+
+        #painel-minhas .contato-industria > summary {
+            list-style: none;
+        }
+
+        #painel-minhas .contato-industria > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        #painel-minhas .comunicacao-card {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 260px;
+            z-index: 40;
+            margin: 0;
+        }
+
+        #painel-minhas .contato-industria {
+            position: relative;
+        }
+
+        #painel-minhas .pin-display {
+            white-space: nowrap;
+        }
+
+        /* Dá espaço real para o texto do status e evita que ele invada Ações. */
+        #painel-minhas .lot-table {
+            table-layout: auto;
+            width: 100%;
+        }
+
+        #painel-minhas .lot-table th:nth-child(1),
+        #painel-minhas .lot-table td:nth-child(1) {
+            width: 16%;
+        }
+
+        #painel-minhas .lot-table th:nth-child(2),
+        #painel-minhas .lot-table td:nth-child(2) {
+            width: 24%;
+        }
+
+        #painel-minhas .lot-table th:nth-child(3),
+        #painel-minhas .lot-table td:nth-child(3) {
+            width: 14%;
+        }
+
+        #painel-minhas .lot-table th:nth-child(4),
+        #painel-minhas .lot-table td:nth-child(4) {
+            width: 22%;
+            min-width: 190px;
+        }
+
+        #painel-minhas .lot-table th:nth-child(5),
+        #painel-minhas .lot-table td:nth-child(5) {
+            width: 24%;
+            min-width: 210px;
+        }
+
+        #painel-minhas .status-text {
+            display: inline-block;
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.35;
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: #58625d;
+        }
+        .comunicacao-card {
+            margin: 8px 0 0 0;
+            padding: 10px 12px;
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.025);
+            line-height: 1.6;
+        }
+
+        .comunicacao-card strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+</style>
+
+    <link rel="stylesheet" th:href="@{/css/texciclo-pagamento.css}">
+
+    <style>
+        .lote-solicitado-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 1px solid rgba(201,191,161,.75);
+            border-radius: 7px;
+            background: rgba(255,255,255,.35);
+        }
+        .lote-solicitado-status {
+            font-size: .72rem;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            color: #315f50;
+        }
+        .cancelar-solicitacao-form {
+            margin: 0;
+        }
+        .btn-cancelar-solicitacao {
+            min-height: 34px;
+            padding: 7px 11px;
+            border: 1px solid #b65a4d;
+            border-radius: 5px;
+            background: transparent;
+            color: #9d4034;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: .62rem;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-cancelar-solicitacao:hover {
+            background: #9d4034;
+            color: #fff;
+        }
+    </style>
+
+</head>
+
+<body th:attr="data-demo-mode=${demoMode},data-demo-perfil=${demoPerfil}">
+
+
+    <header class="app-nav">
+
+        <div class="app-nav-inner">
+
+            <a th:href="@{/}" class="app-logo">
+                <img src="/images/logo.png" alt="TexCiclo">
+                Tex<span class="dot">Ciclo</span>
+            </a>
+
+            <div class="app-nav-right">
+
+                <span class="role-badge role-badge--ong">
+                    ONG
+                </span>
+
+                <div class="user-chip">
+
+                    <span class="user-dot" th:if="${usuarioLogado.fotoPerfil == null}"
+                        th:text="${#strings.substring(usuarioLogado.nome,0,1)}">
+                        ?
+                    </span>
+
+                    <img th:if="${usuarioLogado.fotoPerfil != null}"
+                        th:src="@{'/uploads/' + ${usuarioLogado.fotoPerfil}}"
+                        style="width:30px;height:30px;border-radius:50%;object-fit:cover;">
+
+                    <span th:text="${usuarioLogado.nome}">
+                        Visitante
+                    </span>
+
+                </div>
+
+                <a th:if="${session.demoMode == true}"
+                   th:href="@{/teste-perfis}"
+                   class="btn btn-primary btn-sm">
+                    Trocar perfil
+                </a>
+
+                <a th:unless="${session.demoMode == true}"
+                   th:href="@{/logout}"
+                   class="btn btn-ghost btn-sm"
+                   style="color:var(--text-on-ink); border-color:rgba(231,224,205,0.4);">
+                    Sair
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <main class="app-main">
+
+        <div class="wrap">
+
+            <div class="app-head">
+
+                <span class="eyebrow">
+                    Vitrine exclusiva de doações
+                </span>
+
+                <h1>
+                    Insumos gratuitos para o seu projeto.
+                </h1>
+
+                <p>
+                    Todos os lotes abaixo são gratuitos e disponibilizados por indústrias parceiras.
+                </p>
+
+            </div>
+
+            <div th:if="${param.sucesso}" class="notice-box" style="margin-bottom:20px;">
+
+                <strong>Sucesso!</strong>
+
+                <span th:if="${param.sucesso[0] == 'solicitacao'}">
+                    Sua solicitação foi enviada à indústria.
+                </span>
+
+            </div>
+
+            <div th:if="${param.erro}" class="notice-box" style="margin-bottom:20px; border-left:4px solid #b33;">
+
+                <span th:if="${param.erro[0] == 'quantidade'}">
+                    Informe uma quantidade válida, dentro do disponível.
+                </span>
+
+                <span th:if="${param.erro[0] == 'indisponivel'}">
+                    Este lote não está mais disponível.
+                </span>
+
+                <span th:if="${param.erro[0] == 'tipo'}">
+                    Este lote não é destinado ao seu perfil.
+                </span>
+
+                <span th:if="${param.erro[0] == 'ja-solicitado'}">
+                    Você já possui uma solicitação ativa para este lote.
+                </span>
+
+            </div>
+
+            <div class="dash-tabs">
+
+                <button type="button" class="dash-tab active" data-target="painel-vitrine">
+                    Vitrine
+                </button>
+
+                <button type="button" class="dash-tab" data-target="painel-minhas">
+                    Minhas solicitações
+                </button>
+
+            </div>
+
+            <section class="panel" id="painel-vitrine">
+
+                <div class="product-grid">
+
+                    <div class="product-card" th:each="lote : ${lotes}">
+
+                        <div class="product-thumb">
+
+                            <img th:if="${lote.imagem != null}" th:src="@{'/uploads/' + ${lote.imagem}}"
+                                style="width:100%;height:100%;object-fit:cover;">
+
+                        </div>
+
+                        <div class="product-body">
+
+                            <h3 th:text="${lote.tipoTecido}">
+                                Tecido
+                            </h3>
+
+                            <p class="product-source"
+                                th:text="${lote.industria != null ? 'Doado por ' + lote.industria.nome : 'Indústria não identificada'}">
+                                Doado por indústria
+                            </p>
+
+                            <div class="product-meta">
+
+                                <span th:text="${lote.peso + ' kg disponíveis'}">
+                                    0 kg disponíveis
+                                </span>
+
+                            </div>
+
+                            <div class="product-foot">
+
+                                <span class="chip chip--gratuito">
+                                    Gratuito
+                                </span>
+
+                                <form th:if="${!loteIdsSolicitados.contains(lote.id)}"
+                                    th:action="@{'/solicitar/' + ${lote.id}}" method="post" class="solicitar-form">
+
+                                    <label class="quantidade-label">
+                                        Quantidade desejada
+                                    </label>
+
+                                    <input type="number" name="quantidade" th:max="${lote.peso}" min="0.1" step="0.1"
+                                        th:value="${lote.peso}" required>
+
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        Solicitar lote
+                                    </button>
+
+                                </form>
+
+                                <div th:if="${loteIdsSolicitados.contains(lote.id)}"
+                                     class="lote-solicitado-box">
+
+                                    <span class="lote-solicitado-status">
+                                        ✓ Solicitação enviada
+                                    </span>
+
+                                    <form th:action="@{'/solicitacoes/cancelar/' + ${lote.id}}"
+                                          method="post"
+                                          class="cancelar-solicitacao-form">
+
+                                        <button type="submit"
+                                                class="btn btn-cancelar-solicitacao"
+                                                onclick="return confirm('Deseja cancelar esta solicitação?');">
+                                            Cancelar solicitação
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <p th:if="${#lists.isEmpty(lotes)}" class="empty-note">
+                    Nenhum lote de doação disponível no momento.
+                </p>
+
+            </section>
+
+            <section class="panel" id="painel-minhas" hidden>
+
+                <table class="lot-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Material</th>
+                            <th>Indústria</th>
+                            <th>Quantidade</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="s : ${minhasSolicitacoes}">
+
+                            <td th:text="${s.lote != null ? s.lote.tipoTecido : '-'}">
+                                Material
+                            </td>
+
+                            <td th:text="${s.lote != null && s.lote.industria != null ? s.lote.industria.nome : '-'}">
+                                Indústria
+                            </td>
+
+                            <td th:text="${s.quantidadeSolicitada != null ? s.quantidadeSolicitada + ' kg' : '-'}">
+                                0 kg
+                            </td>
+
+                            <td>
+
+                                <span class="chip chip--disponivel" th:text="${s.status}">
+                                    PENDENTE
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <div class="minhas-solicitacao-acoes">
+
+                                <span th:if="${s.status == 'ACEITA'}" class="solicitacao-aceita">
+
+                                    <div class="industria-acoes-icones">
+                                        <details class="contato-industria">
+                                            <summary class="industria-icon-action"
+                                                      data-tooltip="Ver contato"
+                                                      aria-label="Ver contato da indústria">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+                                                    <circle cx="12" cy="12" r="2.5"></circle>
+                                                </svg>
+                                            </summary>
+
+                                            <div class="comunicacao-card">
+                                                <strong>Contato da indústria</strong>
+
+                                                <div th:if="${s.lote != null && s.lote.industria != null}">
+                                                    <div>Telefone: <span th:text="${s.lote.industria.telefone != null && !s.lote.industria.telefone.isBlank() ? s.lote.industria.telefone : 'Telefone não informado'}"></span></div>
+                                                    <div>E-mail: <span th:text="${s.lote.industria.email != null && !s.lote.industria.email.isBlank() ? s.lote.industria.email : 'E-mail não informado'}"></span></div>
+                                                </div>
+                                            </div>
+                                        </details>
+
+                                        <a th:if="${s.pdfCompromisso != null}"
+                                           th:href="@{'/uploads/' + ${s.pdfCompromisso}}"
+                                           target="_blank"
+                                           class="industria-icon-action"
+                                           data-tooltip="Ver PDF"
+                                           aria-label="Ver PDF">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M6 3.5h8l4 4v13H6z"></path>
+                                                <path d="M14 3.5v4h4"></path>
+                                                <path d="M8.5 15h7"></path>
+                                                <path d="M8.5 18h5"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+
+                                    <span class="pin-display">Seu PIN: <strong
+                                            th:text="${s.pinRetirada}"></strong></span>
+                                </span>
+
+                                <span th:if="${s.status == 'PENDENTE'}" class="status-text">
+                                    Aguardando análise da indústria.
+                                </span>
+
+                                <span th:if="${s.status == 'RETIRADA'}" class="status-text">
+                                    Material retirado.
+                                </span>
+
+                                <span th:if="${s.status == 'RECUSADA'}" class="status-text">
+                                    Solicitação recusada.
+                                </span>
+
+                                <span th:if="${s.status == 'CANCELADA'}" class="status-text">
+                                    Solicitação cancelada.
+                                </span>
+
+                            
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+                <p th:if="${#lists.isEmpty(minhasSolicitacoes)}" class="empty-note">
+                    Você ainda não solicitou nenhum lote.
+                </p>
+
+            </section>
+
+        </div>
+
+    </main>
+    <script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
+<script th:src="@{/js/platform.js}"></script>
+</body>
+
+</html>

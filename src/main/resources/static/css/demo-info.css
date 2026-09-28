@@ -1,0 +1,435 @@
+/* ============================================================
+   TEXCICLO — CAIXAS INFORMATIVAS DO MODO DE DEMONSTRAÇÃO
+   ============================================================
+
+   Este arquivo é utilizado somente quando demoMode == true.
+
+   Características:
+   - Não altera navbar, cards, tabelas, formulários ou abas.
+   - Caixa fixa no canto inferior direito.
+   - Visual integrado à identidade do TexCiclo.
+   - Pode ser minimizada.
+   - Responsiva para telas menores.
+   ============================================================ */
+
+
+/* ============================================================
+   CAIXA PRINCIPAL
+   ============================================================ */
+
+.demo-info-box {
+    position: fixed;
+
+    right: 24px;
+    bottom: 24px;
+
+    width: min(360px, calc(100vw - 40px));
+
+    padding: 20px 20px 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #17201c 0%,
+            #121915 100%
+        );
+
+    color: #efe9d8;
+
+    border: 1px solid rgba(239, 233, 216, 0.16);
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.28),
+        0 6px 18px rgba(0, 0, 0, 0.16);
+
+    z-index: 9999;
+
+    overflow: hidden;
+
+    transition:
+        width 0.28s ease,
+        padding 0.28s ease,
+        transform 0.28s ease,
+        box-shadow 0.28s ease,
+        border-radius 0.28s ease;
+}
+
+
+/* ============================================================
+   DETALHE SUPERIOR DA CAIXA
+   ============================================================ */
+
+.demo-info-box::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #b23a2e 0%,
+            #c95a43 45%,
+            #9dbeb7 100%
+        );
+}
+
+
+/* Pequeno brilho interno */
+
+.demo-info-box::after {
+    content: "";
+
+    position: absolute;
+
+    top: -80px;
+    right: -70px;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background: rgba(157, 190, 183, 0.035);
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   ESTADO OCULTO
+   ============================================================ */
+
+.demo-info-box[hidden] {
+    display: none !important;
+}
+
+
+/* ============================================================
+   CABEÇALHO
+   ============================================================ */
+
+.demo-info-box__header {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+    z-index: 1;
+}
+
+
+/* ============================================================
+   TÍTULO
+   ============================================================ */
+
+.demo-info-box__title {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    font-family: "Fraunces", serif;
+
+    font-size: 1.08rem;
+
+    font-weight: 600;
+
+    line-height: 1.3;
+
+    color: #f2ecdc;
+}
+
+
+/* Pequeno marcador antes do título */
+
+.demo-info-box__title::before {
+    content: "";
+
+    display: inline-block;
+
+    width: 7px;
+    height: 7px;
+
+    flex: 0 0 7px;
+
+    border-radius: 50%;
+
+    background: #c14a38;
+
+    box-shadow:
+        0 0 0 4px rgba(193, 74, 56, 0.10);
+}
+
+
+/* ============================================================
+   BOTÃO DE MINIMIZAR
+   ============================================================ */
+
+.demo-info-box__toggle {
+    position: relative;
+
+    flex: 0 0 34px;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    border: 1px solid rgba(239, 233, 216, 0.20);
+
+    border-radius: 9px;
+
+    background: rgba(239, 233, 216, 0.035);
+
+    color: #efe9d8;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        color 0.2s ease;
+
+    z-index: 2;
+}
+
+
+.demo-info-box__toggle:hover {
+    background: rgba(239, 233, 216, 0.09);
+
+    border-color: rgba(239, 233, 216, 0.38);
+
+    transform: translateY(-1px);
+}
+
+
+.demo-info-box__toggle:active {
+    transform: translateY(0);
+}
+
+
+/* ============================================================
+   ÍCONE
+   ============================================================ */
+
+.demo-info-icon {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 12px;
+
+    line-height: 1;
+
+    color: #d8e3de;
+
+    border: 1px solid rgba(216, 227, 222, 0.55);
+
+    border-radius: 50%;
+
+    transform: translateY(-0.5px);
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.demo-info-box__toggle:hover .demo-info-icon {
+    color: #ffffff;
+
+    border-color: rgba(255, 255, 255, 0.85);
+}
+
+
+/* ============================================================
+   TEXTO
+   ============================================================ */
+
+.demo-info-box__text {
+    position: relative;
+
+    margin: 14px 0 0;
+
+    padding-top: 14px;
+
+    border-top: 1px solid rgba(239, 233, 216, 0.09);
+
+    font-family: "Manrope", sans-serif;
+
+    font-size: 0.78rem;
+
+    line-height: 1.65;
+
+    color: #d3cec1;
+
+    text-align: justify;
+
+    z-index: 1;
+}
+
+
+/* ============================================================
+   ESTADO MINIMIZADO
+   ============================================================ */
+
+.demo-info-box.is-minimized {
+    width: 52px;
+
+    padding: 7px;
+
+    border-radius: 13px;
+
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, 0.25);
+}
+
+
+.demo-info-box.is-minimized .demo-info-box__title,
+.demo-info-box.is-minimized .demo-info-box__text {
+    display: none;
+}
+
+
+/* Botão ocupa a caixa inteira quando minimizada */
+
+.demo-info-box.is-minimized .demo-info-box__header {
+    justify-content: center;
+}
+
+
+.demo-info-box.is-minimized .demo-info-box__toggle {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+
+    border-radius: 9px;
+}
+
+
+/* ============================================================
+   ACESSIBILIDADE — FOCO DO TECLADO
+   ============================================================ */
+
+.demo-info-box__toggle:focus-visible {
+    outline: 2px solid #9dbeb7;
+
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   ANIMAÇÃO DE ENTRADA
+   ============================================================ */
+
+@keyframes demoInfoEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.demo-info-box {
+    animation: demoInfoEnter 0.35s ease both;
+}
+
+
+/* ============================================================
+   TELAS MENORES
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    .demo-info-box {
+        right: 16px;
+        bottom: 16px;
+
+        width: min(
+            360px,
+            calc(100vw - 32px)
+        );
+
+        padding: 18px 17px 16px;
+
+        border-radius: 13px;
+    }
+
+    .demo-info-box__title {
+        font-size: 1rem;
+    }
+
+    .demo-info-box__text {
+        font-size: 0.76rem;
+
+        line-height: 1.6;
+    }
+}
+
+
+/* ============================================================
+   TELAS MUITO PEQUENAS
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+    .demo-info-box {
+        right: 12px;
+        bottom: 12px;
+
+        width: calc(100vw - 24px);
+    }
+
+    .demo-info-box.is-minimized {
+        width: 52px;
+    }
+}
+
+
+/* ============================================================
+   REDUÇÃO DE MOVIMENTO
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .demo-info-box,
+    .demo-info-box__toggle {
+        animation: none;
+
+        transition: none;
+    }
+}

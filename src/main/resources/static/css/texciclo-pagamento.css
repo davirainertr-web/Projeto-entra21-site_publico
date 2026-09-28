@@ -1,0 +1,717 @@
+
+/* ============================================================
+   TEXCICLO — PAGAMENTO SIMULADO / AJUSTES DE INTERFACE
+   Este arquivo complementa platform.css e não substitui o tema.
+   ============================================================ */
+
+/* Abas: sem moldura externa */
+.dash-tabs {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin: 0 0 32px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.dash-tab {
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    color: var(--muted) !important;
+    border-radius: 5px !important;
+    padding: 10px 15px !important;
+}
+
+.dash-tab:hover {
+    background: rgba(21,29,25,.055) !important;
+    color: var(--ink) !important;
+}
+
+.dash-tab.active {
+    background: var(--ink) !important;
+    color: var(--text-on-ink) !important;
+    border-color: var(--ink) !important;
+}
+
+/* Cabeçalho de todas as tabelas */
+.lot-table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    overflow: hidden !important;
+}
+
+.lot-table th {
+    padding: 17px 15px 16px !important;
+    line-height: 1.35 !important;
+    vertical-align: middle !important;
+    height: 54px !important;
+    box-sizing: border-box !important;
+}
+
+.lot-table td {
+    vertical-align: middle !important;
+}
+
+/* Vitrine da microempresa */
+.product-foot {
+    display: block !important;
+    margin-top: 8px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid rgba(201,191,161,.65) !important;
+}
+
+.product-price-block {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    margin-bottom: 13px !important;
+}
+
+.product-price-label {
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .61rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: .06em !important;
+    color: var(--muted) !important;
+}
+
+.product-price-block .product-price {
+    margin: 0 !important;
+    font-size: 1.15rem !important;
+}
+
+.solicitar-form.calcular-preco {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.quantidade-label {
+    margin: 0 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .61rem !important;
+    letter-spacing: .05em !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+}
+
+.quantidade-preco-row {
+    display: grid !important;
+    grid-template-columns: 96px minmax(0,1fr) !important;
+    gap: 9px !important;
+    align-items: stretch !important;
+}
+
+.input-quantidade {
+    width: 100% !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 5px !important;
+    background: #fffdf7 !important;
+    padding: 0 10px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .78rem !important;
+}
+
+.input-quantidade:focus {
+    outline: none !important;
+    border-color: var(--teal) !important;
+    box-shadow: 0 0 0 3px rgba(31,59,54,.08) !important;
+}
+
+.valor-dinamico {
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    padding: 7px 11px !important;
+    border: 1px solid rgba(31,59,54,.16) !important;
+    border-radius: 5px !important;
+    background: rgba(31,59,54,.045) !important;
+}
+
+.valor-dinamico span {
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .58rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+    color: var(--muted) !important;
+}
+
+.valor-dinamico strong {
+    color: var(--teal) !important;
+    font-family: 'Fraunces', serif !important;
+    font-size: 1rem !important;
+}
+
+.solicitar-form.calcular-preco .btn {
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+/* Ações da compra: exatamente uma linha no desktop */
+.venda-acoes,
+.venda-pago {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    width: max-content !important;
+    max-width: 100% !important;
+}
+
+.venda-acoes .pagamento-form {
+    margin: 0 !important;
+    display: flex !important;
+}
+
+.venda-acoes .btn,
+.venda-pago .btn,
+.venda-pago .pin-display,
+.venda-pago .pagamento-confirmado-inline {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+.btn-pagamento-pdf,
+.btn-pagamento-pix,
+.btn-pagamento-dinheiro {
+    min-height: 36px !important;
+    box-sizing: border-box !important;
+    padding: 8px 12px !important;
+    border-radius: 5px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .59rem !important;
+    font-weight: 600 !important;
+    letter-spacing: .035em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: .16s ease !important;
+}
+
+.btn-pagamento-pdf {
+    background: #f2ecdc !important;
+    color: #755a2e !important;
+    border: 1px solid #cdbd97 !important;
+}
+
+.btn-pagamento-pdf:hover {
+    background: #e9dfc8 !important;
+    color: #5f471f !important;
+}
+
+.btn-pagamento-pix {
+    background: #39765d !important;
+    color: #fff !important;
+    border: 1px solid #39765d !important;
+}
+
+.btn-pagamento-pix:hover {
+    background: #2f624d !important;
+    border-color: #2f624d !important;
+}
+
+.btn-pagamento-dinheiro {
+    background: #e9eef0 !important;
+    color: #3d5965 !important;
+    border: 1px solid #b8c6cc !important;
+}
+
+.btn-pagamento-dinheiro:hover {
+    background: #dce5e8 !important;
+    color: #2f4a56 !important;
+}
+
+.venda-pago {
+    min-height: 36px !important;
+}
+
+.pagamento-confirmado-inline {
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0 11px !important;
+    box-sizing: border-box !important;
+    border-radius: 5px !important;
+    background: #e7f0ea !important;
+    border: 1px solid #aec7b6 !important;
+    color: #3d654d !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .59rem !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+.venda-pago .pin-display {
+    margin: 0 !important;
+    min-height: 36px !important;
+    padding: 0 11px !important;
+    background: #eef1e8 !important;
+    border: 1px solid #c3cbb6 !important;
+    color: #495441 !important;
+    border-radius: 5px !important;
+}
+
+.venda-pago .pin-display strong {
+    color: var(--ink) !important;
+}
+
+/* Área de pagamento pendente da indústria */
+.industria-aceita {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: min(100%, 720px) !important;
+}
+
+.industria-aceita-top {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    flex-wrap: wrap !important;
+}
+
+.industria-action {
+    min-height: 35px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 12px !important;
+    border-radius: 5px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .59rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: .035em !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+
+.industria-action--info {
+    background: var(--ink) !important;
+    color: var(--text-on-ink) !important;
+    border: 1px solid var(--ink) !important;
+}
+
+.industria-action--info:hover {
+    background: #26342e !important;
+}
+
+.industria-action--pdf {
+    background: #f2ecdc !important;
+    color: #755a2e !important;
+    border: 1px solid #cdbd97 !important;
+}
+
+.industria-action--pdf:hover {
+    background: #e9dfc8 !important;
+}
+
+.industria-pagamento-pendente {
+    display: grid !important;
+    grid-template-columns: 34px minmax(0,1fr) auto !important;
+    align-items: center !important;
+    gap: 11px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 11px 13px !important;
+    border: 1px solid #d8c995 !important;
+    border-radius: 7px !important;
+    background: #faf6e9 !important;
+}
+
+.industria-pagamento-icon {
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    background: #e5c86f !important;
+    color: #5b4715 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-weight: 700 !important;
+}
+
+.industria-pagamento-texto strong {
+    display: block !important;
+    color: #58491f !important;
+    font-size: .78rem !important;
+    margin-bottom: 2px !important;
+}
+
+.industria-pagamento-texto small {
+    display: block !important;
+    color: #766b50 !important;
+    font-size: .66rem !important;
+    line-height: 1.4 !important;
+}
+
+.industria-pagamento-status {
+    padding: 5px 8px !important;
+    border-radius: 20px !important;
+    background: #eee5c8 !important;
+    color: #6d5b2a !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .55rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+}
+
+.industria-retirada-area {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.industria-status-ok {
+    min-height: 35px !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0 11px !important;
+    border-radius: 5px !important;
+    background: #e7f0ea !important;
+    border: 1px solid #aec7b6 !important;
+    color: #42634d !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: .59rem !important;
+    text-transform: uppercase !important;
+}
+
+/* Página exclusiva de PIX — visual de página, não de caixa dentro da tabela */
+.payment-page-v2 {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 8px 0 72px;
+}
+
+.payment-back-v2 {
+    display: inline-flex;
+    margin-bottom: 18px;
+    color: var(--teal);
+    font-size: .78rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.payment-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1.02fr) minmax(360px,.78fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.payment-intro,
+.pix-payment-card {
+    background: rgba(255,253,247,.78);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.payment-intro {
+    padding: 32px;
+}
+
+.payment-intro h1 {
+    margin: 6px 0 9px;
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem,3vw,2.45rem);
+    line-height: 1.05;
+}
+
+.payment-intro > p {
+    margin: 0;
+    max-width: 58ch;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.payment-order-card {
+    margin-top: 27px;
+    padding: 18px;
+    border-radius: 9px;
+    background: #f8f5eb;
+    border: 1px solid #ddd3b9;
+}
+
+.payment-order-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd3b9;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .61rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+}
+
+.payment-simulated-badge {
+    color: #715b2c;
+    background: #eee3c3;
+    border: 1px solid #d7c697;
+    padding: 4px 7px;
+    border-radius: 20px;
+    font-size: .5rem;
+}
+
+.payment-order-main {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 14px;
+    padding-top: 15px;
+}
+
+.payment-order-main small {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .55rem;
+    text-transform: uppercase;
+}
+
+.payment-order-main strong {
+    font-size: .9rem;
+}
+
+.payment-order-total strong {
+    color: var(--thread-red-dark);
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+}
+
+.payment-steps {
+    display: grid;
+    gap: 0;
+    margin-top: 30px;
+}
+
+.payment-step {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.payment-step:last-child { border-bottom: 0; }
+
+.payment-step > span {
+    width: 29px;
+    height: 29px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ece9df;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .62rem;
+}
+
+.payment-step--active > span {
+    background: var(--ink);
+    color: var(--text-on-ink);
+}
+
+.payment-step strong {
+    display: block;
+    font-size: .79rem;
+}
+
+.payment-step small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: .68rem;
+}
+
+.pix-payment-card {
+    padding: 26px;
+    box-shadow: 0 18px 36px -28px rgba(21,29,25,.5);
+}
+
+.pix-payment-card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid var(--line);
+}
+
+.pix-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 9px;
+    background: #39765d;
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .63rem;
+    font-weight: 700;
+}
+
+.pix-payment-card h2 {
+    margin: 0 0 3px;
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+}
+
+.pix-payment-card-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .72rem;
+}
+
+.pix-qr-frame {
+    width: 238px;
+    height: 238px;
+    margin: 24px auto 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #d9ddd9;
+    border-radius: 8px;
+}
+
+.pix-qr-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.pix-code-block {
+    margin-top: 8px;
+}
+
+.pix-code-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .58rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted);
+}
+
+.pix-copy-button {
+    border: 0;
+    background: transparent;
+    color: var(--teal);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .58rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 3px 0;
+}
+
+.pix-copy-button:hover { text-decoration: underline; }
+
+#pixCodigo {
+    width: 100%;
+    min-height: 72px;
+    resize: none;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fffdf8;
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .59rem;
+    line-height: 1.5;
+}
+
+.pix-confirm-button {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #39765d;
+    border-radius: 6px;
+    background: #39765d;
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.pix-confirm-button:hover {
+    background: #2f624d;
+    border-color: #2f624d;
+}
+
+.pix-academic-note {
+    margin: 12px 0 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: .62rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    .payment-layout { grid-template-columns: 1fr; }
+    .payment-intro { padding: 26px; }
+}
+
+@media (max-width: 680px) {
+    .venda-acoes,
+    .venda-pago {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .venda-acoes .btn,
+    .venda-acoes .pagamento-form,
+    .venda-acoes .pagamento-form .btn {
+        min-width: 0 !important;
+    }
+
+    .venda-acoes .btn,
+    .venda-acoes .pagamento-form {
+        flex: 1 1 0 !important;
+    }
+
+    .venda-acoes .pagamento-form .btn { width: 100% !important; }
+
+    .industria-pagamento-pendente {
+        grid-template-columns: 34px minmax(0,1fr) !important;
+    }
+
+    .industria-pagamento-status { display: none; }
+
+    .payment-order-main { grid-template-columns: 1fr 1fr; }
+    .payment-order-total { grid-column: 1 / -1; }
+    .pix-payment-card { padding: 20px; }
+    .pix-qr-frame { width: 210px; height: 210px; }
+}

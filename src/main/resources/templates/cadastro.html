@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar conta — TexCiclo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/platform.css}">
+</head>
+
+<body>
+
+<div class="auth-shell auth-shell--compact">
+
+    <a th:href="@{/login}" class="auth-back">← Voltar para o login</a>
+
+    <div class="auth-logo">Tex<span class="dot">Ciclo</span></div>
+
+    <div class="auth-card auth-card--wide">
+
+        <h1>Criar sua conta</h1>
+
+        <div class="auth-error" th:if="${erro}" th:text="${erro}" style="display:block; margin-bottom:10px; padding:8px 12px; border-radius:2px; background:rgba(167,56,43,0.1); border:1px solid rgba(167,56,43,0.35); color:#7f291f; font-size:0.8rem;"></div>
+
+        <p class="auth-sub">Preencha seus dados para solicitar seu cadastro na plataforma.</p>
+
+        <form th:action="@{/cadastro}" method="post" enctype="multipart/form-data" id="cadastroForm">
+
+            <div class="cadastro-columns">
+
+                <div class="cadastro-col-esquerda">
+
+                    <span class="cadastro-section-title">Sobre você</span>
+
+                    <div class="tipo-usuario-grid">
+                        <label class="tipo-usuario-opcao">
+                            <input type="radio" name="tipo" value="INDUSTRIA" required> 🏭 Indústria
+                        </label>
+                        <label class="tipo-usuario-opcao">
+                            <input type="radio" name="tipo" value="ONG" required> ♡ ONG
+                        </label>
+                        <label class="tipo-usuario-opcao" style="grid-column:1 / -1;">
+                            <input type="radio" name="tipo" value="MICROEMPRESA" required> ▣ Microempresa
+                        </label>
+                    </div>
+
+                    <div class="field cadastro-descricao-field" id="campoDescricao">
+                        <label for="descricao" id="labelDescricao">Conte sobre sua organização</label>
+                        <textarea id="descricao" name="descricao" rows="4" placeholder="Descreva o que vocês fazem"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="foto">Foto de perfil</label>
+                        <input type="file" id="foto" name="foto" accept="image/*">
+                    </div>
+
+                    <div class="field" style="margin-bottom:0;">
+                        <label for="documento">Documento comprobatório (Cartão CNPJ, contrato social ou estatuto)</label>
+                        <input type="file" id="documento" name="documento" accept=".pdf,image/*" required>
+                    </div>
+
+                </div>
+
+                <div class="cadastro-col-direita">
+
+                    <span class="cadastro-section-title">Dados de acesso</span>
+
+                    <div class="form-row-2">
+                        <div class="field">
+                            <label for="nome">Nome / Empresa</label>
+                            <input type="text" id="nome" name="nome" placeholder="Nome da empresa/organização" required>
+                        </div>
+                        <div class="field" id="campoCidade">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" placeholder="Ex.: Blumenau - SC" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="field">
+                            <label for="cnpj">CNPJ</label>
+                            <input type="text" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" required>
+                        </div>
+                        <div class="field">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" id="telefone" name="telefone" placeholder="(47) 99999-9999" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email" placeholder="voce@empresa.com.br" autocomplete="email" required>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="field">
+                            <label for="senha">Senha</label>
+                            <input type="password" id="senha" name="senha" placeholder="Crie uma senha" required>
+                        </div>
+                        <div class="field" style="margin-bottom:0;">
+                            <label for="confirmarSenha">Confirmar senha</label>
+                            <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Digite a senha novamente" required>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit" style="margin-top:16px;">Criar conta</button>
+
+        </form>
+
+        <div class="login-register">
+            <span>Já possui uma conta?</span>
+            <a th:href="@{/login}">Entrar</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/platform.js}"></script>
+
+<script>
+(function () {
+    const radios = document.querySelectorAll('input[name="tipo"]');
+    const campoCidade = document.getElementById('campoCidade');
+    const cidade = document.getElementById('cidade');
+
+    function atualizarCidade() {
+        const selecionado = document.querySelector('input[name="tipo"]:checked');
+        if (!selecionado || !campoCidade || !cidade) return;
+
+        const industria = selecionado.value === 'INDUSTRIA';
+
+        campoCidade.style.display = industria ? 'none' : '';
+        cidade.required = !industria;
+
+        if (industria) {
+            cidade.value = '';
+        }
+    }
+
+    radios.forEach(radio => radio.addEventListener('change', atualizarCidade));
+    atualizarCidade();
+})();
+</script>
+
+</body>
+</html>

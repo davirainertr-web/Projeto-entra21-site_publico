@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace — TexCiclo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/platform.css}">
+
+    <link rel="stylesheet" th:href="@{/css/texciclo-pagamento.css}">
+    <link rel="stylesheet" th:href="@{/css/demo-info.css}" th:if="${demoMode}">
+
+    <style>
+        .lote-solicitado-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 1px solid rgba(201,191,161,.75);
+            border-radius: 7px;
+            background: rgba(255,255,255,.35);
+        }
+        .lote-solicitado-status {
+            font-size: .72rem;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            color: #315f50;
+        }
+        .cancelar-solicitacao-form {
+            margin: 0;
+        }
+        .btn-cancelar-solicitacao {
+            min-height: 34px;
+            padding: 7px 11px;
+            border: 1px solid #b65a4d;
+            border-radius: 5px;
+            background: transparent;
+            color: #9d4034;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: .62rem;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-cancelar-solicitacao:hover {
+            background: #9d4034;
+            color: #fff;
+        }
+    </style>
+
+</head>
+
+<body th:attr="data-demo-mode=${demoMode},data-demo-perfil=${demoPerfil}">
+
+
+<header class="app-nav">
+    <div class="app-nav-inner">
+
+        <a th:href="@{/}" class="app-logo">
+            Tex<span class="dot">Ciclo</span>
+        </a>
+
+        <div class="app-nav-right">
+
+            <span class="role-badge role-badge--microempresa">
+                Microempresa
+            </span>
+
+            <div class="user-chip">
+
+                <span class="user-dot"
+                      th:if="${usuarioLogado.fotoPerfil == null}"
+                      th:text="${#strings.substring(usuarioLogado.nome,0,1)}">
+                    ?
+                </span>
+
+                <img th:if="${usuarioLogado.fotoPerfil != null}"
+                     th:src="@{'/uploads/' + ${usuarioLogado.fotoPerfil}}"
+                     style="width:30px;height:30px;border-radius:50%;object-fit:cover;">
+
+                <span th:text="${usuarioLogado.nome}">
+                    Visitante
+                </span>
+
+            </div>
+
+            <a th:if="${session.demoMode == true}"
+               th:href="@{/teste-perfis}"
+               class="btn btn-primary btn-sm">
+                Trocar perfil
+            </a>
+
+            <a th:unless="${session.demoMode == true}"
+               th:href="@{/logout}"
+               class="btn btn-ghost btn-sm"
+               style="color:var(--text-on-ink);border-color:rgba(231,224,205,0.4);">
+                Sair
+            </a>
+
+        </div>
+    </div>
+</header>
+
+<main class="app-main microempresa-dashboard">
+
+    <div class="wrap">
+
+        <div class="app-head">
+            <span class="eyebrow">Marketplace de excedentes</span>
+
+            <h1>
+                Matéria-prima de qualidade,
+                por uma fração do preço.
+            </h1>
+
+            <p>
+                Encontre materiais disponibilizados por indústrias parceiras.
+            </p>
+        </div>
+
+        <div class="dash-tabs">
+
+            <button type="button"
+                    class="dash-tab active"
+                    data-target="painel-vitrine">
+                Vitrine
+            </button>
+
+            <button type="button"
+                    class="dash-tab"
+                    data-target="painel-minhas">
+                Minhas solicitações
+            </button>
+
+        </div>
+
+        <!-- VITRINE -->
+
+        <section class="panel" id="painel-vitrine">
+
+            <div class="product-grid">
+
+                <div class="product-card"
+                     th:each="lote : ${lotes}">
+
+                    <div class="product-thumb">
+
+                        <img th:if="${lote.imagem != null}"
+                             th:src="@{'/uploads/' + ${lote.imagem}}"
+                             style="width:100%;height:100%;object-fit:cover;">
+
+                        <svg th:if="${lote.imagem == null}"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.6">
+                            <path d="M3 7h18M6 7v13h12V7M9 7V4h6v3"/>
+                        </svg>
+
+                    </div>
+
+                    <div class="product-body">
+
+                        <h3 th:text="${lote.tipoTecido}">
+                            Tecido
+                        </h3>
+
+                        <p class="product-source"
+                           th:text="'Vendido por ' + ${lote.industria.nome}">
+                            Vendido por indústria
+                        </p>
+
+                        <div class="product-meta">
+                            <span th:text="${lote.peso + ' kg disponíveis'}">
+                                0 kg disponíveis
+                            </span>
+                        </div>
+
+                        <div class="product-foot">
+
+                            <div class="product-price-block"
+                                 th:if="${lote.preco != null and lote.peso != null and lote.peso > 0}">
+                                <span class="product-price-label">Preço por kg</span>
+                                <strong class="product-price"
+                                        th:text="'R$ ' + ${#numbers.formatDecimal(lote.preco / lote.peso, 1, 2)} + ' / kg'">
+                                    R$ 0,00 / kg
+                                </strong>
+                            </div>
+
+                            <form th:if="${!loteIdsSolicitados.contains(lote.id)}"
+                                  th:action="@{'/solicitar/' + ${lote.id}}"
+                                  method="post"
+                                  class="solicitar-form calcular-preco"
+                                  th:attr="data-preco=${lote.preco},data-peso=${lote.peso}">
+
+                                <label class="quantidade-label" th:for="${'quantidade-' + lote.id}">
+                                    Quantidade desejada
+                                </label>
+
+                                <div class="quantidade-preco-row">
+                                    <input type="number"
+                                           th:id="${'quantidade-' + lote.id}"
+                                           name="quantidade"
+                                           class="input-quantidade"
+                                           min="0.01"
+                                           step="0.01"
+                                           th:max="${lote.peso}"
+                                           value="1"
+                                           required>
+
+                                    <div class="valor-dinamico" aria-live="polite">
+                                        <span>Total</span>
+                                        <strong class="preco-selecionado">R$ 0,00</strong>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    Solicitar compra
+                                </button>
+
+                            </form>
+
+                            <div th:if="${loteIdsSolicitados.contains(lote.id)}"
+                                 class="lote-solicitado-box">
+
+                                <span class="lote-solicitado-status"
+                                      th:if="${solicitacoesAtivasPorLote[lote.id] == null
+                                              or !solicitacoesAtivasPorLote[lote.id].pagamentoConfirmado}">
+                                    ✓ Solicitação enviada
+                                </span>
+
+                                <span class="lote-solicitado-status"
+                                      th:if="${solicitacoesAtivasPorLote[lote.id] != null
+                                              and solicitacoesAtivasPorLote[lote.id].pagamentoConfirmado}">
+                                    ✓ Compra confirmada
+                                </span>
+
+                                <form th:if="${solicitacoesAtivasPorLote[lote.id] == null
+                                              or !solicitacoesAtivasPorLote[lote.id].pagamentoConfirmado}"
+                                      th:action="@{'/solicitacoes/cancelar/' + ${lote.id}}"
+                                      method="post"
+                                      class="cancelar-solicitacao-form">
+
+                                    <button type="submit"
+                                            class="btn btn-cancelar-solicitacao"
+                                            onclick="return confirm('Deseja cancelar esta solicitação?');">
+                                        Cancelar solicitação
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <p th:if="${#lists.isEmpty(lotes)}"
+               class="empty-note">
+                Nenhum lote à venda no momento.
+            </p>
+
+        </section>
+
+        <!-- MINHAS SOLICITAÇÕES -->
+
+        <section class="panel"
+                 id="painel-minhas"
+                 hidden>
+
+            <table class="lot-table">
+
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Indústria</th>
+                        <th>Quantidade</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="s : ${minhasSolicitacoes}" th:attr="data-pagamento-id=${s.id}">
+
+                        <td th:text="${s.lote.tipoTecido}">
+                            Material
+                        </td>
+
+                        <td th:text="${s.lote.industria.nome}">
+                            Indústria
+                        </td>
+
+                        <td th:text="${s.quantidadeSolicitada != null
+                                      ? s.quantidadeSolicitada + ' kg'
+                                      : '-'}">
+                            -
+                        </td>
+
+                        <td th:text="${s.valorSolicitado != null
+                                      ? 'R$ ' + #numbers.formatDecimal(s.valorSolicitado, 1, 2)
+                                      : 'R$ 0,00'}">
+                            R$ 0,00
+                        </td>
+
+                        <td>
+                            <span class="chip chip--disponivel"
+                                  th:text="${s.status}">
+                                PENDENTE
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <!-- PENDENTE -->
+                            <span th:if="${s.status == 'PENDENTE'}">
+                                Aguardando análise da indústria.
+                            </span>
+
+                            <!-- CANCELADA -->
+                            <div th:if="${s.status == 'CANCELADA'}" class="status-text">
+                                Solicitação cancelada.
+                            </div>
+
+                            <!-- ACEITA / VENDA -->
+                            <div th:if="${s.status == 'ACEITA'
+                                          and s.lote.finalidade == 'venda'}"
+                                 class="solicitacao-acoes">
+
+                                <div class="venda-acoes"
+                                     th:if="${s.pagamentoStatus == null or s.pagamentoStatus != 'PAGO'}">
+
+                                    <a th:if="${s.pdfCompromisso != null}"
+                                       th:href="@{'/uploads/' + ${s.pdfCompromisso}}"
+                                       target="_blank"
+                                       class="btn btn-pagamento-pdf">
+                                        Ver PDF
+                                    </a>
+
+                                    <a th:href="@{'/pagamento/' + ${s.id}}"
+                                       class="btn btn-pagamento-pix">
+                                        Pagar com PIX
+                                    </a>
+
+                                    <form th:action="@{'/pagamento/' + ${s.id} + '/dinheiro'}"
+                                          method="post"
+                                          class="pagamento-form">
+                                        <button type="submit"
+                                                class="btn btn-pagamento-dinheiro">
+                                            Pagar em dinheiro
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="venda-pago" th:if="${s.pagamentoStatus == 'PAGO'}">
+                                    <a th:if="${s.pdfCompromisso != null}"
+                                       th:href="@{'/uploads/' + ${s.pdfCompromisso}}"
+                                       target="_blank"
+                                       class="btn btn-pagamento-pdf">
+                                        Ver PDF
+                                    </a>
+                                    <span class="pagamento-confirmado-inline">✓ Pagamento confirmado</span>
+                                    <span class="pin-display">PIN: <strong th:text="${s.pinRetirada}">0000</strong></span>
+                                </div>
+
+                            </div>
+
+                            <!-- ACEITA / DOAÇÃO -->
+                            <div th:if="${s.status == 'ACEITA'
+                                          and s.lote.finalidade == 'doacao'}">
+
+                                <a th:if="${s.pdfCompromisso != null}"
+                                   th:href="@{'/uploads/' + ${s.pdfCompromisso}}"
+                                   target="_blank"
+                                   class="btn btn-ghost btn-sm btn-pdf">
+                                    PDF
+                                </a>
+
+                                <span class="status-inline">
+                                    Aguardando retirada.
+                                </span>
+
+                            </div>
+
+                            <!-- RETIRADA -->
+                            <div th:if="${s.status == 'RETIRADA'}">
+                                Material retirado.
+                            </div>
+
+                            <!-- RECUSADA -->
+                            <div th:if="${s.status == 'RECUSADA'}">
+                                Solicitação recusada.
+                            </div>
+
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <p th:if="${#lists.isEmpty(minhasSolicitacoes)}"
+               class="empty-note">
+                Você ainda não solicitou nenhum lote.
+            </p>
+
+        </section>
+
+    </div>
+
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".calcular-preco").forEach(function (form) {
+        const input = form.querySelector(".input-quantidade");
+        const total = form.querySelector(".preco-selecionado");
+        const preco = Number(form.dataset.preco || 0);
+        const peso = Number(form.dataset.peso || 0);
+        if (!input || !total || !preco || !peso) return;
+
+        const precoPorKg = preco / peso;
+
+        function atualizarTotal() {
+            let quantidade = Number(input.value || 0);
+            if (quantidade < 0) quantidade = 0;
+            const valor = precoPorKg * quantidade;
+            total.textContent = valor.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        input.addEventListener("input", atualizarTotal);
+        input.addEventListener("change", atualizarTotal);
+        atualizarTotal();
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const pagamentoId = params.get("pagamento");
+    const deveAbrirMinhas = params.get("aba") === "minhas" || !!pagamentoId;
+
+    if (deveAbrirMinhas) {
+        const aba = document.querySelector('.dash-tab[data-target="painel-minhas"]');
+        if (aba) aba.click();
+    }
+
+    if (pagamentoId) {
+        const linha = document.querySelector('[data-pagamento-id="' + pagamentoId + '"]');
+        if (linha) {
+            setTimeout(function () {
+                linha.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 150);
+        }
+    }
+});
+</script>
+
+<script th:src="@{/js/platform.js}"></script>
+<script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+.git
+.gitignore
+.github
+.vscode
+.idea
+target
+uploads
+bd backup
+repomix-output.xml
+README.md
+*.zip
