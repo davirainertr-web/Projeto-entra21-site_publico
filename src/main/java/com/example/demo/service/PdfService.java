@@ -423,8 +423,8 @@ public class PdfService {
             } else if (a.caminhoImagem != null && !a.caminhoImagem.isBlank()) {
 
                 File arquivoAssinatura = new File(
-                        System.getProperty("texciclo.upload-dir", "uploads"),
-                        a.caminhoImagem
+                        System.getProperty("user.dir"),
+                        "uploads" + File.separator + a.caminhoImagem
                 );
 
                 if (arquivoAssinatura.exists()) {
@@ -550,7 +550,7 @@ public class PdfService {
     }
 
     private File criarArquivo(String nomeArquivo) {
-        File pasta = new File(System.getProperty("texciclo.upload-dir", "uploads"));
+        File pasta = new File(System.getProperty("user.dir"), "uploads");
         if (!pasta.exists()) {
             pasta.mkdirs();
         }

@@ -1,13 +1,11 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.model.Usuario;
-import com.example.demo.repository.UsuarioRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -15,10 +13,7 @@ import jakarta.servlet.http.HttpSession;
 public class TestePerfisController {
 
     private static final String DEMO_MODE = "demoMode";
-    private static final String DEMO_PREFIX = "DEMO_TEXCICLO_PUBLICO_";
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private static final String DEMO_PREFIX = "DEMO_TEXCICLO_LIVRE_";
 
     @GetMapping("/teste-perfis")
     public String escolherPerfil(HttpSession session, Model model) {
@@ -35,11 +30,13 @@ public class TestePerfisController {
             return "redirect:/teste-perfis";
         }
 
-        Usuario usuario = obterOuCriarUsuarioDemo(perfil);
+        // No modo de demonstração, o perfil é apenas um objeto em sessão.
+        // Nenhum usuário fictício é gravado no PostgreSQL.
+        Usuario usuario = criarUsuarioDemo(perfil);
 
         session.setAttribute("usuarioLogado", usuario);
         session.setAttribute(DEMO_MODE, true);
-        session.setAttribute("demoPerfil", perfil);
+        session.setAttribute("demoPerfil", perfil.toUpperCase());
 
         return redirecionar(perfil);
     }
@@ -68,31 +65,22 @@ public class TestePerfisController {
         return "redirect:/microempresa";
     }
 
-    private Usuario obterOuCriarUsuarioDemo(String perfil) {
+    private Usuario criarUsuarioDemo(String perfil) {
         String tipo = perfil.toUpperCase();
-        String email = emailDemo(tipo);
 
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseGet(Usuario::new);
-
+        Usuario usuario = new Usuario();
         usuario.setNome(nomeDemo(tipo));
         usuario.setCidade("Blumenau");
-        usuario.setEmail(email);
+        usuario.setEmail(emailDemo(tipo));
         usuario.setSenha("demo");
         usuario.setTipo(tipo);
         usuario.setStatus("APROVADO");
         usuario.setTokenAprovacao(DEMO_PREFIX + tipo);
+        usuario.setDescricao(descricaoDemo(tipo));
+        usuario.setKgDesviados(0.0);
+        usuario.setEntregasRealizadas(0);
 
-        if (usuario.getDescricao() == null || usuario.getDescricao().isBlank()) {
-            usuario.setDescricao(descricaoDemo(tipo));
-        }
-        if (usuario.getKgDesviados() == null) {
-            usuario.setKgDesviados(0.0);
-        }
-        if (usuario.getEntregasRealizadas() == null) {
-            usuario.setEntregasRealizadas(0);
-        }
-
-        return usuarioRepository.save(usuario);
+        return usuario;
     }
 
     private String emailDemo(String tipo) {

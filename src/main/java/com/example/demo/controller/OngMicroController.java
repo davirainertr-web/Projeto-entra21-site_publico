@@ -51,6 +51,18 @@ public class OngMicroController {
                         return "redirect:/login";
                 }
 
+                // A demonstração pública usa somente o localStorage do navegador.
+                if (Boolean.TRUE.equals(session.getAttribute("demoMode"))) {
+                        model.addAttribute("usuarioLogado", usuarioLogado);
+                        model.addAttribute("lotes", new ArrayList<Lote>());
+                        model.addAttribute("minhasSolicitacoes", new ArrayList<Solicitacao>());
+                        model.addAttribute("loteIdsSolicitados", new java.util.HashSet<Long>());
+                        model.addAttribute("solicitacoesAtivasPorLote", new java.util.HashMap<Long, Solicitacao>());
+                        model.addAttribute("demoMode", true);
+                        model.addAttribute("demoPerfil", usuarioLogado.getTipo());
+                        return "dashboard-ong";
+                }
+
                 if (!"ONG".equalsIgnoreCase(usuarioLogado.getTipo())) {
                         return redirecionarParaDashboard(usuarioLogado);
                 }
@@ -72,6 +84,18 @@ public class OngMicroController {
 
                 if (usuarioLogado == null) {
                         return "redirect:/login";
+                }
+
+                // A demonstração pública usa somente o localStorage do navegador.
+                if (Boolean.TRUE.equals(session.getAttribute("demoMode"))) {
+                        model.addAttribute("usuarioLogado", usuarioLogado);
+                        model.addAttribute("lotes", new ArrayList<Lote>());
+                        model.addAttribute("minhasSolicitacoes", new ArrayList<Solicitacao>());
+                        model.addAttribute("loteIdsSolicitados", new java.util.HashSet<Long>());
+                        model.addAttribute("solicitacoesAtivasPorLote", new java.util.HashMap<Long, Solicitacao>());
+                        model.addAttribute("demoMode", true);
+                        model.addAttribute("demoPerfil", usuarioLogado.getTipo());
+                        return "dashboard-microempresa";
                 }
 
                 if (!"MICROEMPRESA".equalsIgnoreCase(usuarioLogado.getTipo())) {

@@ -101,7 +101,7 @@ public class UsuarioController {
 
             String novoArquivo = "assinatura_industria_" + UUID.randomUUID() + ".png";
 
-            File pastaUploads = new File(System.getProperty("texciclo.upload-dir", "uploads"));
+            File pastaUploads = new File(System.getProperty("user.dir"), "uploads");
             if (!pastaUploads.exists() && !pastaUploads.mkdirs()) {
                 throw new IOException("Não foi possível criar a pasta uploads.");
             }
@@ -162,12 +162,13 @@ public class UsuarioController {
 
     @GetMapping("/login")
     public String login() {
-        return "redirect:/teste-perfis";
+        return "login";
     }
 
     @GetMapping("/cadastro")
     public String cadastro(Model model) {
-        return "redirect:/teste-perfis";
+        model.addAttribute("usuario", new Usuario());
+        return "cadastro";
     }
 
     @PostMapping("/cadastro")
@@ -177,12 +178,70 @@ public class UsuarioController {
             @RequestParam(value = "foto", required = false) MultipartFile foto,
             @RequestParam(value = "documento", required = false) MultipartFile documento,
             Model model) {
-        return "redirect:/teste-perfis";
+
+        if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
+            model.addAttribute("erro", "Informe uma senha.");
+            return "cadastro";
+        }
+
+        if (!usuario.getSenha().equals(confirmarSenha)) {
+            model.addAttribute("erro", "As senhas não coincidem.");
+            return "cadastro";
+        }
+
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+            model.addAttribute("erro", "Este e-mail já está cadastrado.");
+            return "cadastro";
+        }
+
+        if (!ValidadorCnpj.isValido(usuario.getCnpj())) {
+            model.addAttribute("erro", "CNPJ inválido. Verifique o número informado.");
+            return "cadastro";
+        }
+
+        // As indústrias do TexCiclo ficam, nesta versão do projeto, restritas a Blumenau.
+        // ONG e Microempresa continuam usando a cidade informada no cadastro.
+        if ("INDUSTRIA".equalsIgnoreCase(usuario.getTipo())) {
+            usuario.setCidade("Blumenau - SC");
+        }
+
+        if (documento == null || documento.isEmpty()) {
+            model.addAttribute("erro", "Envie um documento comprobatório (Cartão CNPJ, contrato social ou estatuto).");
+            return "cadastro";
+        }
+
+        if (foto != null && !foto.isEmpty()) {
+            try {
+                usuario.setFotoPerfil(salvarArquivo(foto));
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("erro", "Erro ao salvar a foto: " + e.getMessage());
+                return "cadastro";
+            }
+        }
+
+        try {
+            usuario.setDocumentoComprovante(salvarArquivo(documento));
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("erro", "Erro ao salvar o documento: " + e.getMessage());
+            return "cadastro";
+        }
+
+        String token = UUID.randomUUID().toString();
+        usuario.setTokenAprovacao(token);
+        usuario.setStatus("PENDENTE");
+        usuarioRepository.save(usuario);
+
+        String linkRevisar = "http://localhost:8080/admin/revisar/" + token;
+        emailService.enviarSolicitacaoAprovacao(usuario.getNome(), usuario.getTipo(), linkRevisar);
+
+        return "redirect:/login?pendente=true";
     }
 
     private String salvarArquivo(MultipartFile arquivo) throws Exception {
         String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-        File pasta = new File(System.getProperty("texciclo.upload-dir", "uploads"));
+        File pasta = new File(System.getProperty("user.dir"), "uploads");
         if (!pasta.exists()) pasta.mkdirs();
         arquivo.transferTo(new File(pasta, nomeArquivo));
         return nomeArquivo;
@@ -194,6 +253,52 @@ public class UsuarioController {
             @RequestParam("senha") String senha,
             HttpSession session,
             Model model) {
-        return "redirect:/teste-perfis";
+
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+
+        if (usuario == null || !usuario.getSenha().equals(senha)) {
+            model.addAttribute("erro", "E-mail ou senha incorretos.");
+            return "login";
+        }
+
+        if ("PENDENTE".equals(usuario.getStatus())) {
+            model.addAttribute("erro", "Seu cadastro ainda está em análise. Você receberá a confirmação por e-mail em até 48 horas.");
+            return "login";
+        }
+
+        if ("REJEITADO".equals(usuario.getStatus())) {
+            model.addAttribute("erro", "Seu cadastro não foi aprovado. Entre em contato para mais informações.");
+            return "login";
+        }
+
+        // Login normal sempre encerra o modo de demonstração.
+        // Assim, a sessão real nunca carrega a interface ou o contexto demo.
+        session.removeAttribute("demoMode");
+        session.removeAttribute("demoPerfil");
+        session.setAttribute("usuarioLogado", usuario);
+
+        switch (usuario.getTipo()) {
+
+            case "INDUSTRIA":
+                // A assinatura é obrigatória para a indústria.
+                // Se ainda não existe, a página abre automaticamente
+                // o gerenciador/modal de assinatura.
+                if (usuario.getAssinaturaDigital() == null
+                        || usuario.getAssinaturaDigital().isBlank()) {
+                    return "redirect:/industria?abrirAssinatura=true";
+                }
+
+                return "redirect:/industria";
+
+            case "ONG":
+                return "redirect:/ong";
+
+            case "MICROEMPRESA":
+                return "redirect:/microempresa";
+
+            default:
+                model.addAttribute("erro", "Tipo de usuário inválido.");
+                return "login";
+        }
     }
 }

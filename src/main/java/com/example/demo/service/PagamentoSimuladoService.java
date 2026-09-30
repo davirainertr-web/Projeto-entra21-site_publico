@@ -41,7 +41,7 @@ public class PagamentoSimuladoService {
                 + "|SOLICITACAO=" + solicitacao.getId()
                 + "|VALOR=" + valorFormatado;
 
-        File pastaUploads = new File(System.getProperty("texciclo.upload-dir", "uploads"));
+        File pastaUploads = new File(System.getProperty("user.dir"), "uploads");
         if (!pastaUploads.exists() && !pastaUploads.mkdirs()) {
             throw new IllegalStateException("Não foi possível criar a pasta uploads.");
         }

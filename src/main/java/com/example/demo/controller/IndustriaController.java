@@ -83,6 +83,18 @@ public class IndustriaController {
             return "redirect:/login";
         }
 
+        // A demonstração pública é isolada por navegador e não consulta o banco.
+        // Os dados são gerenciados pelo demo-local.js via localStorage.
+        if (Boolean.TRUE.equals(session.getAttribute("demoMode"))) {
+            model.addAttribute("usuarioLogado", usuarioSessao);
+            model.addAttribute("demoMode", true);
+            model.addAttribute("demoPerfil", usuarioSessao.getTipo());
+            model.addAttribute("lotes", new ArrayList<Lote>());
+            model.addAttribute("solicitacoes", new ArrayList<Solicitacao>());
+            model.addAttribute("lote", new Lote());
+            return "dashboard-industria";
+        }
+
         Usuario usuarioLogado = usuarioRepository
                 .findById(usuarioSessao.getId())
                 .orElse(usuarioSessao);
@@ -296,6 +308,11 @@ public class IndustriaController {
             return "redirect:/industria?erro=finalidade";
         }
 
+        if (Boolean.TRUE.equals(session.getAttribute("demoMode"))
+                && !loteRepository.findByIndustria(industria).isEmpty()) {
+            return "redirect:/industria?erro=demo-limite";
+        }
+
         Lote lote = new Lote();
 
         lote.setTipoTecido(tipoTecido.trim());
@@ -367,7 +384,8 @@ public class IndustriaController {
             String nomeArquivo = UUID.randomUUID() + extensao;
 
             File pastaUploads = new File(
-                    System.getProperty("texciclo.upload-dir", "uploads"));
+                    System.getProperty("user.dir"),
+                    "uploads");
 
             if (!pastaUploads.exists()) {
                 pastaUploads.mkdirs();

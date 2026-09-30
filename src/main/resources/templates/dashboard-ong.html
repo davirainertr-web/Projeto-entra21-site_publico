@@ -18,6 +18,7 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 
     <link rel="stylesheet" th:href="@{/css/platform.css}">
+    <link rel="stylesheet" th:href="@{/css/demo-local.css}" th:if="${demoMode}">
     <link rel="stylesheet" th:href="@{/css/demo-info.css}" th:if="${demoMode}">
 
     <style>
@@ -621,6 +622,7 @@
     </main>
     <script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
 <script th:src="@{/js/platform.js}"></script>
+<script th:src="@{/js/demo-local.js}" th:if="${demoMode}"></script>
 </body>
 
 </html>
