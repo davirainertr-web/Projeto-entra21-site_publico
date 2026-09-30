@@ -66,13 +66,6 @@
         box._timer = setTimeout(() => box.classList.remove("show"), 3000);
     }
 
-    function addDemoInfo(container, text) {
-        const info = document.createElement("div");
-        info.className = "demo-local-info";
-        info.innerHTML = "<strong>Dados desta demonstração</strong><span>" + esc(text) + "</span>";
-        container.prepend(info);
-    }
-
     function initIndustry() {
         const main = document.querySelector(".app-main");
         if (!main) return;
@@ -98,9 +91,6 @@
                 <section class="panel" id="local-panel-sustentabilidade" hidden></section>
             </div>
         `;
-
-        addDemoInfo(main.querySelector(".wrap"),
-            "Os lotes e solicitações ficam somente neste navegador. Outro celular ou computador terá uma demonstração independente.");
 
         main.querySelectorAll("[data-local-tab]").forEach(btn => {
             btn.addEventListener("click", () => {
@@ -415,9 +405,6 @@
                 <section class="panel" id="local-panel-minhas" hidden></section>
             </div>
         `;
-
-        addDemoInfo(main.querySelector(".wrap"),
-            "Esta demonstração usa o armazenamento local deste navegador. Seus dados não são enviados para outros dispositivos.");
 
         main.querySelectorAll("[data-local-tab]").forEach(btn => {
             btn.addEventListener("click", () => {

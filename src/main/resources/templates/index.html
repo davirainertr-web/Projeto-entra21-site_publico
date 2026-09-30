@@ -25,11 +25,10 @@
       <nav class="links">
         <a class="section-link" href="#problema">O problema</a>
         <a class="section-link" href="#como-funciona">Como funciona</a>
-        <a class="section-link" href="#monetizacao">Monetização</a>
         <a class="section-link" href="#perfis">Perfis</a>
         <a class="section-link" href="#equipe">Equipe</a>
       </nav>
-      <a th:href="@{/login}" class="btn btn-primary">Acessar plataforma</a>
+      <a th:href="@{/teste-perfis}" class="btn btn-primary">Acessar plataforma</a>
     </div>
   </header>
 
@@ -43,7 +42,7 @@
           <p class="lede">O TexCiclo conecta grandes indústrias têxteis de Blumenau a ONGs e microempreendedores, automatizando a
             burocracia jurídica que hoje trava a doação e a venda subsidiada de resíduos e estoques parados.</p>
           <div class="hero-cta">
-            <a th:href="@{/login}" class="btn btn-primary">Acessar plataforma</a>
+            <a th:href="@{/teste-perfis}" class="btn btn-primary">Acessar plataforma</a>
             <a href="#como-funciona" class="btn btn-ghost">Ver como funciona</a>
           </div>
         </div>
@@ -179,41 +178,6 @@
                 sistema. O status muda para "Entregue" e os indicadores de sustentabilidade da indústria são
                 atualizados.</p>
             </div>
-          </div>
-          <div class="flow-step">
-            <div class="flow-marker">6</div>
-            <div>
-              <span class="tag">Taxa da plataforma</span>
-              <h3>Uma taxa de 10% é aplicada às vendas</h3>
-              <p class="muted-text">A indústria informa o valor que deseja receber pelo lote. Nas vendas, o TexCiclo acrescenta 10% de taxa de operação da plataforma ao valor final pago pela microempresa. Exemplo: um lote de R$ 100,00 chega à microempresa por R$ 110,00.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="monetizacao" class="section-pad band-dark">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <span class="eyebrow">Modelo de monetização</span>
-          <h2>Taxa simples e transparente nas vendas.</h2>
-          <p class="muted-text">A taxa é aplicada somente quando uma indústria cadastra um lote para venda.</p>
-        </div>
-        <div class="problem-grid reveal">
-          <div class="problem-card">
-            <span class="num">10%</span>
-            <h3>Taxa da plataforma</h3>
-            <p>O percentual é calculado sobre o valor informado pela indústria e acrescentado ao preço final da venda.</p>
-          </div>
-          <div class="problem-card">
-            <span class="num">R$ 100</span>
-            <h3>Valor definido pela indústria</h3>
-            <p>A indústria cadastra o lote pelo valor que deseja receber pela matéria-prima.</p>
-          </div>
-          <div class="problem-card">
-            <span class="num">R$ 110</span>
-            <h3>Valor final da microempresa</h3>
-            <p>Com a taxa de 10%, um lote cadastrado por R$ 100,00 passa a ter valor final de R$ 110,00 para a microempresa.</p>
           </div>
         </div>
       </div>
