@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
     texciclo.initTabs();
     texciclo.initFiltros();
     texciclo.initNovoLote();
-    texciclo.initCadastro();
     texciclo.autoAbrirMinhasSolicitacoes();
     texciclo.initMascaras();
     texciclo.initPreviewImagem();
@@ -578,180 +577,6 @@ texciclo.initNovoLote = function () {
 
 
 // ============================================================
-// CADASTRO LOCAL - MANTIDO PARA COMPATIBILIDADE
-// ============================================================
-
-texciclo.salvarLoteLocal = function () {
-
-    const tecido =
-        document.getElementById(
-            "tipoTecido"
-        );
-
-    const peso =
-        document.getElementById(
-            "pesoLote"
-        );
-
-    const tabela =
-        document.getElementById(
-            "lotesTableBody"
-        );
-
-    if (!tecido || !peso || !tabela) {
-        return;
-    }
-
-    const finalidade =
-        document.querySelector(
-            'input[name="finalidade"]:checked'
-        );
-
-    const marca =
-        document.getElementById(
-            "temMarca"
-        );
-
-    const tr =
-        document.createElement("tr");
-
-    tr.innerHTML =
-        "<td>" +
-        tecido.value +
-        "</td>" +
-
-        "<td>" +
-        peso.value +
-        " kg</td>" +
-
-        "<td>" +
-        (
-            finalidade &&
-                finalidade.value === "doacao"
-                ? "Doação"
-                : "Venda"
-        ) +
-        "</td>" +
-
-        "<td>" +
-        "<span class=\"chip chip--disponivel\">" +
-        "Disponível" +
-        "</span>" +
-        "</td>" +
-
-        "<td>" +
-        (
-            marca && marca.checked
-                ? "Sim"
-                : "Não"
-        ) +
-        "</td>";
-
-    tabela.prepend(tr);
-
-    texciclo.mensagemCadastro(
-        tecido.value,
-        peso.value
-    );
-};
-
-
-// ============================================================
-// MENSAGEM DE CADASTRO
-// ============================================================
-
-texciclo.mensagemCadastro =
-    function (tecido, peso) {
-
-        const msg =
-            document.getElementById(
-                "loteSuccess"
-            );
-
-        if (msg) {
-
-            msg.textContent =
-                "Lote de " +
-                tecido +
-                " (" +
-                peso +
-                " kg) cadastrado com sucesso.";
-
-            msg.classList.add("show");
-        }
-
-        texciclo.toast(
-            "Novo lote cadastrado."
-        );
-    };
-
-
-// ============================================================
-// IR PARA TABELA
-// ============================================================
-
-texciclo.irParaTabela =
-    function () {
-
-        const aba =
-            document.querySelector(
-                ".dash-tab[data-target='painel-lotes']"
-            );
-
-        if (aba) {
-            aba.click();
-        }
-    };
-
-
-// ============================================================
-// RESET FORMULÁRIO
-// ============================================================
-
-texciclo.resetFormulario =
-    function () {
-
-        const form =
-            document.getElementById(
-                "novoLoteForm"
-            );
-
-        if (!form) {
-            return;
-        }
-
-        form.reset();
-
-        const aviso =
-            document.getElementById(
-                "marcaNotice"
-            );
-
-        if (aviso) {
-            aviso.classList.remove("show");
-        }
-    };
-
-
-// ============================================================
-// FINALIZAR CADASTRO
-// ============================================================
-
-texciclo.finalizarCadastro =
-    function (tecido, peso) {
-
-        texciclo.mensagemCadastro(
-            tecido,
-            peso
-        );
-
-        texciclo.resetFormulario();
-
-        texciclo.irParaTabela();
-    };
-
-
-// ============================================================
 // PREVIEW DA IMAGEM
 // ============================================================
 
@@ -1189,118 +1014,6 @@ texciclo.initMascaras =
 
 
 // ============================================================
-// CADASTRO DE USUÁRIO
-// ============================================================
-
-texciclo.initCadastro =
-    function () {
-
-        const radios =
-            document.querySelectorAll(
-                'input[name="tipo"]'
-            );
-
-        if (!radios.length) {
-            return;
-        }
-
-        const campo =
-            document.getElementById(
-                "campoDescricao"
-            );
-
-        const label =
-            document.getElementById(
-                "labelDescricao"
-            );
-
-        const textarea =
-            document.getElementById(
-                "descricao"
-            );
-
-        if (
-            !campo ||
-            !label ||
-            !textarea
-        ) {
-            return;
-        }
-
-        function atualizarTipo() {
-
-            const radioSelecionado =
-                document.querySelector(
-                    'input[name="tipo"]:checked'
-                );
-
-            if (!radioSelecionado) {
-                return;
-            }
-
-            const tipo =
-                radioSelecionado.value;
-
-            if (tipo === "INDUSTRIA") {
-
-                campo.style.display =
-                    "none";
-
-                textarea.removeAttribute(
-                    "required"
-                );
-
-            } else if (
-                tipo === "ONG"
-            ) {
-
-                campo.style.display =
-                    "block";
-
-                label.textContent =
-                    "Conte sobre sua organização: o que vocês fazem e a quem ajudam?";
-
-                textarea.placeholder =
-                    "Ex: oficinas de costura para mulheres em situação de vulnerabilidade, atendendo cerca de 40 famílias por mês.";
-
-                textarea.setAttribute(
-                    "required",
-                    "required"
-                );
-
-            } else if (
-                tipo === "MICROEMPRESA"
-            ) {
-
-                campo.style.display =
-                    "block";
-
-                label.textContent =
-                    "Conte sobre sua empresa: o que vocês produzem ou revendem?";
-
-                textarea.placeholder =
-                    "Ex: confecção de roupas autorais em pequena escala, vendidas em feiras locais.";
-
-                textarea.setAttribute(
-                    "required",
-                    "required"
-                );
-            }
-        }
-
-        radios.forEach(function (radio) {
-
-            radio.addEventListener(
-                "change",
-                atualizarTipo
-            );
-        });
-
-        atualizarTipo();
-    };
-
-
-// ============================================================
 // ASSINATURA DIGITAL DA INDÚSTRIA
 // ============================================================
 
@@ -1472,6 +1185,42 @@ texciclo.initAssinatura = function () {
         if (!input.value || !input.value.startsWith("data:image/png;base64,")) {
             evento.preventDefault();
             window.alert("Não foi possível capturar a assinatura. Desenhe novamente.");
+            return;
+        }
+
+        // A demonstração pública não usa banco de dados.
+        // A assinatura fica somente neste navegador, assim como os demais
+        // dados fictícios da demonstração.
+        if (document.body.dataset.demoMode === "true") {
+            evento.preventDefault();
+
+            try {
+                localStorage.setItem("texciclo_demo_assinatura_v1", input.value);
+            } catch (erro) {
+                window.alert("Não foi possível salvar a assinatura neste navegador.");
+                return;
+            }
+
+            botao.dataset.possuiAssinatura = "true";
+            botao.classList.add("signature-button--saved");
+            botao.innerHTML = "Assinatura cadastrada · Alterar";
+
+            const preview = document.querySelector(".signature-preview-box");
+            const vazio = document.querySelector(".signature-empty");
+
+            if (preview) {
+                preview.innerHTML = "<img src=\"" + input.value + "\" alt=\"Sua assinatura digital\"><span>Assinatura cadastrada</span>";
+                preview.hidden = false;
+            }
+
+            if (vazio) {
+                vazio.hidden = true;
+            }
+
+            modal.hidden = true;
+            document.body.classList.remove("modal-open");
+
+            window.dispatchEvent(new CustomEvent("texciclo:assinatura-demo-salva"));
         }
     });
 };

@@ -48,7 +48,7 @@ public class OngMicroController {
                 Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
                 if (usuarioLogado == null) {
-                        return "redirect:/login";
+                        return "redirect:/teste-perfis";
                 }
 
                 // A demonstração pública usa somente o localStorage do navegador.
@@ -83,7 +83,7 @@ public class OngMicroController {
                 Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
                 if (usuarioLogado == null) {
-                        return "redirect:/login";
+                        return "redirect:/teste-perfis";
                 }
 
                 // A demonstração pública usa somente o localStorage do navegador.
@@ -369,7 +369,7 @@ public class OngMicroController {
                                 "usuarioLogado");
 
                 if (usuarioLogado == null) {
-                        return "redirect:/login";
+                        return "redirect:/teste-perfis";
                 }
 
                 if (!"ONG".equalsIgnoreCase(
@@ -566,7 +566,7 @@ public class OngMicroController {
                 Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
                 if (usuarioLogado == null) {
-                        return "redirect:/login";
+                        return "redirect:/teste-perfis";
                 }
 
                 if (!"ONG".equalsIgnoreCase(usuarioLogado.getTipo())
@@ -641,7 +641,7 @@ public class OngMicroController {
                                 ||
                                 usuario.getTipo() == null) {
 
-                        return "redirect:/login";
+                        return "redirect:/teste-perfis";
                 }
 
                 if ("ONG".equalsIgnoreCase(
@@ -662,6 +662,6 @@ public class OngMicroController {
                         return "redirect:/industria";
                 }
 
-                return "redirect:/login";
+                return "redirect:/teste-perfis";
         }
 }

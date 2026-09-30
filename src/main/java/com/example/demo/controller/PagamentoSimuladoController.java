@@ -49,7 +49,7 @@ public class PagamentoSimuladoController {
         Usuario usuario = usuarioLogado(session);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         Solicitacao solicitacao = solicitacaoRepository
@@ -97,7 +97,7 @@ public class PagamentoSimuladoController {
         Usuario usuario = usuarioLogado(session);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         Solicitacao solicitacao = solicitacaoRepository
@@ -119,7 +119,7 @@ public class PagamentoSimuladoController {
         Usuario usuario = usuarioLogado(session);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         Solicitacao solicitacao = solicitacaoRepository
@@ -148,7 +148,7 @@ public class PagamentoSimuladoController {
         Usuario usuario = usuarioLogado(session);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         Solicitacao solicitacao = solicitacaoRepository
@@ -255,7 +255,7 @@ public class PagamentoSimuladoController {
 
     private String redirecionarParaDashboard(Usuario usuario) {
         if (usuario == null || usuario.getTipo() == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         if ("MICROEMPRESA".equalsIgnoreCase(usuario.getTipo())) {
@@ -270,6 +270,6 @@ public class PagamentoSimuladoController {
             return "redirect:/industria";
         }
 
-        return "redirect:/login";
+        return "redirect:/teste-perfis";
     }
 }

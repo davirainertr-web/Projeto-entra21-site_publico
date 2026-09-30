@@ -66,9 +66,67 @@
         box._timer = setTimeout(() => box.classList.remove("show"), 3000);
     }
 
+    const ASSINATURA_KEY = "texciclo_demo_assinatura_v1";
+
+    function assinaturaDemoSalva() {
+        try {
+            return localStorage.getItem(ASSINATURA_KEY) || "";
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function atualizarAssinaturaDemoUI() {
+        const assinatura = assinaturaDemoSalva();
+        const botao = document.getElementById("btnAssinatura");
+        const preview = document.querySelector(".signature-preview-box");
+        const vazio = document.querySelector(".signature-empty");
+
+        if (!botao) return;
+
+        const possui = !!assinatura;
+        botao.dataset.possuiAssinatura = String(possui);
+        botao.classList.toggle("signature-button--saved", possui);
+        botao.innerHTML = possui
+            ? "Assinatura cadastrada · Alterar"
+            : "Criar assinatura digital";
+
+        if (preview) {
+            preview.hidden = !possui;
+            if (possui) {
+                preview.innerHTML = `<img src="${assinatura}" alt="Sua assinatura digital"><span>Assinatura cadastrada</span>`;
+            }
+        }
+
+        if (vazio) {
+            vazio.hidden = possui;
+        }
+    }
+
+    function prepararAssinaturaDemo() {
+        const painel = document.getElementById("gerenciadorAssinatura");
+        if (painel && painel.parentElement !== document.body) {
+            // O painel original fica dentro do conteúdo que o modo demo
+            // recria dinamicamente. Movemos somente o gerenciador para fora
+            // para que o botão do topo continue funcionando.
+            document.body.appendChild(painel);
+        }
+
+        atualizarAssinaturaDemoUI();
+
+        if (!assinaturaDemoSalva()) {
+            setTimeout(() => {
+                const botao = document.getElementById("btnAssinatura");
+                if (botao) botao.click();
+            }, 250);
+        }
+    }
+
     function initIndustry() {
         const main = document.querySelector(".app-main");
         if (!main) return;
+
+        prepararAssinaturaDemo();
 
         main.innerHTML = `
             <div class="wrap">
@@ -103,6 +161,10 @@
         });
 
         renderIndustry();
+        atualizarAssinaturaDemoUI();
+        if (typeof window.texcicloDemoInfoRefresh === "function") {
+            requestAnimationFrame(window.texcicloDemoInfoRefresh);
+        }
     }
 
     function renderIndustry() {
@@ -417,6 +479,9 @@
         });
 
         renderBuyer(profile);
+        if (typeof window.texcicloDemoInfoRefresh === "function") {
+            requestAnimationFrame(window.texcicloDemoInfoRefresh);
+        }
     }
 
     function renderBuyer(profile) {
@@ -606,6 +671,11 @@
             renderBuyer(profile);
         }));
     }
+
+    window.addEventListener("texciclo:assinatura-demo-salva", function () {
+        atualizarAssinaturaDemoUI();
+        notify("Assinatura digital cadastrada para esta demonstração.");
+    });
 
     function start() {
         if (document.body.dataset.demoMode !== "true") return;

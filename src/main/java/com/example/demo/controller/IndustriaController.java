@@ -80,7 +80,7 @@ public class IndustriaController {
         Usuario usuarioSessao = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuarioSessao == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         // A demonstração pública é isolada por navegador e não consulta o banco.
@@ -280,7 +280,7 @@ public class IndustriaController {
                 "usuarioLogado");
 
         if (usuarioSessao == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         Usuario industria = usuarioRepository.findById(
@@ -289,7 +289,7 @@ public class IndustriaController {
 
         if (industria == null) {
             session.invalidate();
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         if (tipoTecido == null
@@ -447,14 +447,14 @@ public class IndustriaController {
             HttpSession session) {
 
         // =====================================================
-        // VERIFICA LOGIN
+        // VERIFICA SESSÃO
         // =====================================================
 
         Usuario usuarioSessao = (Usuario) session.getAttribute(
                 "usuarioLogado");
 
         if (usuarioSessao == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         // =====================================================
@@ -644,7 +644,7 @@ public class IndustriaController {
         Usuario industria = (Usuario) session.getAttribute("usuarioLogado");
 
         if (industria == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         Solicitacao solicitacao = solicitacaoRepository
@@ -772,7 +772,7 @@ public class IndustriaController {
                 .getAttribute("usuarioLogado");
 
         if (usuarioSessao == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         if (!"INDUSTRIA".equalsIgnoreCase(
@@ -828,7 +828,7 @@ public class IndustriaController {
             Usuario usuarioSessao) {
 
         if (usuarioSessao == null || usuarioSessao.getTipo() == null) {
-            return "redirect:/login";
+            return "redirect:/teste-perfis";
         }
 
         if ("INDUSTRIA".equalsIgnoreCase(usuarioSessao.getTipo())) {
@@ -843,7 +843,7 @@ public class IndustriaController {
             return "redirect:/microempresa";
         }
 
-        return "redirect:/login";
+        return "redirect:/teste-perfis";
     }
 
     @GetMapping("/solicitacoes/recusar/{id}")
@@ -895,6 +895,6 @@ public class IndustriaController {
 
         session.invalidate();
 
-        return "redirect:/login";
+        return "redirect:/teste-perfis";
     }
 }

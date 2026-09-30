@@ -1,4 +1,4 @@
-const MAIN_SITE_URL = "plataforma/login.html";
+const MAIN_SITE_URL = "/teste-perfis";
 
 document.querySelectorAll("[data-main-link]").forEach(el => {
   el.href = MAIN_SITE_URL;

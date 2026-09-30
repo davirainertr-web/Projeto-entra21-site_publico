@@ -95,17 +95,7 @@
                    class="btn btn-primary btn-sm">
                     Trocar perfil
                 </a>
-
-                <a th:unless="${session.demoMode == true}"
-                   th:href="@{/logout}"
-                   class="btn btn-ghost btn-sm" style="
-                    color:var(--text-on-ink);
-                    border-color:rgba(231,224,205,0.4);
-                ">
-                    Sair
-                </a>
-
-            </div>
+</div>
 
         </div>
 
@@ -213,7 +203,7 @@
                             Assine os documentos emitidos pela TexCiclo.
                         </h2>
                         <p class="signature-manager__text">
-                            A assinatura é exclusiva da indústria e fica salva no seu cadastro.
+                            A assinatura é exclusiva da indústria e fica salva neste perfil de demonstração.
                             Ela será inserida automaticamente nos termos em PDF.
                         </p>
                     </div>
@@ -719,37 +709,7 @@
     <script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
 
 
-    <script>
-        /*
-         * Se a indústria acabou de fazer login sem assinatura,
-         * o backend envia ?abrirAssinatura=true.
-         * Abrimos automaticamente o modal para ela cadastrar a assinatura.
-         */
-        document.addEventListener("DOMContentLoaded", function () {
-            const params = new URLSearchParams(window.location.search);
 
-            if (params.get("abrirAssinatura") !== "true") {
-                return;
-            }
-
-            const botaoAssinatura = document.getElementById("btnAssinatura");
-
-            if (!botaoAssinatura
-                    || botaoAssinatura.dataset.possuiAssinatura === "true") {
-                return;
-            }
-
-            setTimeout(function () {
-                botaoAssinatura.click();
-
-                // Remove o parâmetro da URL depois de abrir o modal,
-                // evitando que um F5 tente abrir novamente.
-                const url = new URL(window.location.href);
-                url.searchParams.delete("abrirAssinatura");
-                window.history.replaceState({}, document.title, url.toString());
-            }, 150);
-        });
-    </script>
 
 <script th:src="@{/js/demo-local.js}" th:if="${demoMode}"></script>
 </body>

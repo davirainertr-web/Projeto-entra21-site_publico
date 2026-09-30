@@ -17,53 +17,6 @@ public class EmailService {
         private String emailAdmin;
 
         @Async
-        public void enviarSolicitacaoAprovacao(
-                        String nome,
-                        String tipo,
-                        String linkRevisar) {
-
-                SimpleMailMessage msg = new SimpleMailMessage();
-
-                msg.setTo(emailAdmin);
-
-                msg.setSubject(
-                                "Novo cadastro para aprovação — TexCiclo");
-
-                msg.setText(
-                                "Um novo cadastro foi enviado e aguarda análise.\n\n" +
-                                                "Nome: " + nome + "\n" +
-                                                "Tipo: " + tipo + "\n\n" +
-                                                "Informações completas para analisar: " +
-                                                linkRevisar);
-
-                mailSender.send(msg);
-        }
-
-        @Async
-        public void enviarResultado(
-                        String emailDestino,
-                        boolean aprovado) {
-
-                SimpleMailMessage msg = new SimpleMailMessage();
-
-                msg.setTo(emailDestino);
-
-                msg.setSubject(
-                                aprovado
-                                                ? "Cadastro aprovado — TexCiclo"
-                                                : "Cadastro não aprovado — TexCiclo");
-
-                msg.setText(
-                                aprovado
-                                                ? "Seu cadastro na plataforma TexCiclo foi aprovado! " +
-                                                                "Você já pode fazer login normalmente."
-                                                : "Seu cadastro na plataforma TexCiclo não foi aprovado " +
-                                                                "nesta análise. Entre em contato para mais informações.");
-
-                mailSender.send(msg);
-        }
-
-        @Async
         public void enviarNotificacaoSolicitacao(
                         String emailIndustria,
                         String nomeSolicitante,

@@ -44,7 +44,7 @@
 
         industria: {
 
-            "painel-lotes": {
+            "local-panel-lotes": {
                 slug: "meus_lotes",
 
                 titulo: "Meus lotes",
@@ -56,7 +56,7 @@
             },
 
 
-            "painel-novo-lote": {
+            "local-panel-novo": {
                 slug: "novo_lote",
 
                 titulo: "Novo lote",
@@ -69,7 +69,7 @@
             },
 
 
-            "painel-solicitacoes": {
+            "local-panel-solicitacoes": {
                 slug: "solicitacoes",
 
                 titulo: "Solicitações",
@@ -81,7 +81,7 @@
             },
 
 
-            "painel-sustentabilidade": {
+            "local-panel-sustentabilidade": {
                 slug: "sustentabilidade",
 
                 titulo: "Sustentabilidade",
@@ -100,7 +100,7 @@
 
         microempresa: {
 
-            "painel-vitrine": {
+            "local-panel-vitrine": {
                 slug: "vitrine",
 
                 titulo: "Vitrine",
@@ -111,7 +111,7 @@
             },
 
 
-            "painel-minhas": {
+            "local-panel-minhas": {
                 slug: "minhas_solicitacoes",
 
                 titulo: "Minhas solicitações",
@@ -130,7 +130,7 @@
 
         ong: {
 
-            "painel-vitrine": {
+            "local-panel-vitrine": {
                 slug: "vitrine",
 
                 titulo: "Vitrine",
@@ -141,7 +141,7 @@
             },
 
 
-            "painel-minhas": {
+            "local-panel-minhas": {
                 slug: "minhas_solicitacoes",
 
                 titulo: "Minhas solicitações",
@@ -528,65 +528,69 @@
        OBSERVA NAVEGAÇÃO ENTRE ABAS
        ============================================================ */
 
-    function observarNavegacao() {
+    function vincularNavegacaoAtual() {
 
-
-        /*
-         * Abas tradicionais do dashboard.
-         */
+        if (observer) {
+            observer.disconnect();
+        }
 
         document
             .querySelectorAll(".dash-tab")
             .forEach(function (tab) {
 
+                if (tab.dataset.demoInfoBound === "true") {
+                    return;
+                }
+
+                tab.dataset.demoInfoBound = "true";
+
                 tab.addEventListener(
                     "click",
                     function () {
-
-                        requestAnimationFrame(
-                            renderizar
-                        );
+                        requestAnimationFrame(renderizar);
                     }
                 );
             });
 
-
-        /*
-         * Também observa mudanças no atributo hidden
-         * dos painéis.
-         */
-
         observer = new MutationObserver(
             function () {
-
                 var novoPainel = painelAtivo();
 
-                if (
-                    novoPainel !==
-                    painelAtualId
-                ) {
-
+                if (novoPainel !== painelAtualId) {
                     renderizar();
                 }
             }
         );
 
-
         document
             .querySelectorAll(".panel")
             .forEach(function (painel) {
-
                 observer.observe(
                     painel,
                     {
                         attributes: true,
-
-                        attributeFilter: [
-                            "hidden"
-                        ]
+                        attributeFilter: ["hidden"]
                     }
                 );
             });
+
+        renderizar();
+    }
+
+    function observarNavegacao() {
+        vincularNavegacaoAtual();
+
+        // O modo demonstração recria o conteúdo do .app-main com JavaScript.
+        // Observamos essa troca para reconectar a caixa informativa às novas abas.
+        var appMain = document.querySelector(".app-main");
+
+        if (appMain) {
+            var estruturaObserver = new MutationObserver(function () {
+                requestAnimationFrame(vincularNavegacaoAtual);
+            });
+
+            estruturaObserver.observe(appMain, { childList: true });
+        }
     }
 
 
@@ -643,6 +647,14 @@
             }
         );
     }
+
+
+    window.texcicloDemoInfoRefresh = function () {
+        if (!modoDemoAtivo() || !box) {
+            return;
+        }
+        vincularNavegacaoAtual();
+    };
 
 
     /* ============================================================
