@@ -43,6 +43,20 @@ a { text-decoration: none; color: inherit; }
     font-family: Fraunces, serif;
     font-weight: 700;
     font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.demo-logo img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+}
+
+.demo-logo-text {
+    display: inline-block;
 }
 
 .demo-logo span { color: #c65a4a; }

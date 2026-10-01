@@ -12,7 +12,6 @@
 
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/platform.css}">
-    <link rel="stylesheet" th:href="@{/css/demo-local.css}" th:if="${demoMode}">
 
     <link rel="stylesheet" th:href="@{/css/texciclo-pagamento.css}">
     <link rel="stylesheet" th:href="@{/css/demo-info.css}" th:if="${demoMode}">
@@ -100,7 +99,15 @@
                class="btn btn-primary btn-sm">
                 Trocar perfil
             </a>
-</div>
+
+            <a th:unless="${session.demoMode == true}"
+               th:href="@{/logout}"
+               class="btn btn-ghost btn-sm"
+               style="color:var(--text-on-ink);border-color:rgba(231,224,205,0.4);">
+                Sair
+            </a>
+
+        </div>
     </div>
 </header>
 
