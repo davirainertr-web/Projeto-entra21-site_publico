@@ -39,7 +39,7 @@ a { text-decoration: none; color: inherit; }
     gap: 20px;
 }
 
-.demo-logo {\n    display: inline-flex;\n    align-items: center;\n    gap: 8px;
+.demo-logo {
     font-family: Fraunces, serif;
     font-weight: 700;
     font-size: 1.2rem;
@@ -59,7 +59,7 @@ a { text-decoration: none; color: inherit; }
     display: inline-block;
 }
 
-.demo-logo img { width: 30px; height: 30px; object-fit: contain; }\n.demo-logo span { color: #c65a4a; }
+.demo-logo span { color: #c65a4a; }
 
 .demo-back {
     font: 600 .68rem IBM Plex Mono, monospace;
