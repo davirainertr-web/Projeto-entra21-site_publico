@@ -61,12 +61,13 @@
         button.classList.toggle("signature-button--saved", has);
         button.textContent = has ? "Assinatura cadastrada · Alterar" : "Criar assinatura digital";
         const preview = document.querySelector(".signature-preview-box");
-        const empty = document.querySelector(".signature-empty");
         if (preview) {
-            preview.hidden = !has;
-            if (has) preview.innerHTML = '<img src="' + signatureData() + '" alt="Sua assinatura digital"><span>Assinatura cadastrada</span>';
+            if (has) {
+                preview.innerHTML = '<img src="' + signatureData() + '" alt="Sua assinatura digital">';
+            } else {
+                preview.innerHTML = '<strong>Você ainda não possui uma assinatura.</strong><span>Crie uma para que ela seja colocada nos próximos PDFs.</span>';
+            }
         }
-        if (empty) empty.hidden = has;
     }
 
     function initSignatureLocal() {
@@ -410,8 +411,13 @@
             pop.className = "tc-contact-popover";
             pop.dataset.demoContactPopover = r.id;
             pop.innerHTML = `<strong>${r.perfil === "MICROEMPRESA" ? "Microempresa" : "ONG"}</strong><div>Nome: ${esc(r.nome || nomes[r.perfil])}</div><div>Perfil: ${esc(r.perfil)}</div><div>Contato: disponível apenas na demonstração</div>`;
-            b.parentElement.style.position = "relative";
-            b.parentElement.appendChild(pop);
+            const actions = b.closest(".solicitacao-acoes");
+            if (actions) {
+                actions.appendChild(pop);
+            } else {
+                b.parentElement.style.position = "relative";
+                b.parentElement.appendChild(pop);
+            }
         });
         bindPdfButtons(panel);
     }

@@ -1149,20 +1149,16 @@
   gap:12px;
 }
 
-.signature-preview-box,
-.signature-empty{
+.signature-preview-box{
   min-height:92px;
   padding:14px;
   border:1px dashed var(--line);
   border-radius:var(--radius);
   background:var(--paper);
-}
-
-.signature-preview-box{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:6px;
+  gap:5px;
 }
 
 .signature-preview-box img{
@@ -1173,24 +1169,15 @@
   object-position:left center;
 }
 
-.signature-preview-box span,
-.signature-empty span{
+.signature-preview-box span{
   color:var(--muted);
   font-size:.75rem;
 }
 
-.signature-empty{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:5px;
-}
-
-.signature-empty strong{
+.signature-preview-box strong{
   font-size:.84rem;
   color:var(--ink);
 }
-
 .signature-button{
   width:100%;
   min-height:44px;
@@ -2206,6 +2193,19 @@
   align-items: center;
   justify-content: flex-start;
   min-width: 0;
+}
+
+/* Informações abertas pelo olhinho: ficam dentro da própria linha
+   para que a tabela aumente de altura em vez de cortar o conteúdo. */
+#painel-solicitacoes .solicitacao-acoes > .tc-contact-popover {
+  position: static;
+  flex: 0 0 100%;
+  width: min(320px, 100%);
+  min-width: 0;
+  max-width: 320px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  z-index: auto;
 }
 
 #painel-solicitacoes .solicitacao-acoes > .industria-aceita {
