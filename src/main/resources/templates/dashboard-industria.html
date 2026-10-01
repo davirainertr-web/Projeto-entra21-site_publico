@@ -218,15 +218,12 @@
                     </div>
 
                     <div class="signature-manager__preview">
-                        <div class="signature-preview-box"
-                             th:if="${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()}">
-                            <img th:src="@{'/uploads/' + ${usuarioLogado.assinaturaDigital}}"
-                                 alt="Sua assinatura digital">
+                        <div class="signature-preview-box" hidden>
+                            <img src="" alt="Sua assinatura digital">
                             <span>Assinatura cadastrada</span>
                         </div>
 
-                        <div class="signature-empty"
-                             th:if="${usuarioLogado.assinaturaDigital == null or usuarioLogado.assinaturaDigital.isEmpty()}">
+                        <div class="signature-empty">
                             <strong>Você ainda não possui uma assinatura.</strong>
                             <span>Crie uma para que ela seja colocada nos próximos PDFs.</span>
                         </div>
@@ -234,14 +231,8 @@
                         <button type="button"
                                 id="btnAssinatura"
                                 class="signature-button"
-                                th:classappend="${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()} ? ' signature-button--saved' : ''"
-                                th:attr="data-possui-assinatura=${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()}">
-                            <span th:if="${usuarioLogado.assinaturaDigital == null or usuarioLogado.assinaturaDigital.isEmpty()}">
-                                Criar assinatura digital
-                            </span>
-                            <span th:if="${usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isEmpty()}">
-                                Assinatura cadastrada · Alterar
-                            </span>
+                                data-possui-assinatura="false">
+                            Criar assinatura digital
                         </button>
                     </div>
                 </div>
@@ -750,7 +741,7 @@
         });
     </script>
 
-<script th:src="@{/js/demo-local.js(v=2)}" th:if="${demoMode}"></script>
+<script th:src="@{/js/demo-local.js(v=4)}" th:if="${demoMode}"></script>
 </body>
 
 </html>

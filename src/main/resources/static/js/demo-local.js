@@ -219,6 +219,7 @@
         const empty = panel.querySelector(".empty-note");
         const lots = s.lotes.filter(l => l.industriaPerfil === "INDUSTRIA");
         if (!body) return;
+
         body.innerHTML = lots.map(l => `
             <tr>
                 <td>${l.imagem ? `<img src="${l.imagem}" alt="Imagem do lote" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">` : "Sem imagem"}</td>
@@ -226,9 +227,88 @@
                 <td>${Number(l.peso).toLocaleString("pt-BR")} kg</td>
                 <td>${l.finalidade === "doacao" ? "Doação" : "Venda"}</td>
                 <td><span class="chip chip--disponivel">${esc(l.status)}</span></td>
-                <td>${l.temMarca ? "Compromisso necessário" : "Não necessário"}</td>
+                <td>${l.temMarca
+                    ? `<button type="button" class="btn-tabela demo-pdf-link" data-demo-pdf="lote" data-demo-lote="${esc(l.id)}">Ver compromisso</button>`
+                    : "Não necessário"}</td>
             </tr>`).join("");
         if (empty) empty.hidden = lots.length > 0;
+        bindPdfButtons(panel);
+    }
+
+    function abrirPdfDemo(payload) {
+        const popup = window.open("about:blank", "_blank");
+        if (!popup) {
+            toast("Permita pop-ups para visualizar o documento.");
+            return;
+        }
+        popup.document.write('<p style="font-family:Arial,sans-serif;padding:30px">Gerando documento...</p>');
+        popup.document.close();
+
+        fetch("/demo/pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Falha ao gerar PDF");
+            return response.blob();
+        })
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            popup.location.href = url;
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+        })
+        .catch(error => {
+            console.error(error);
+            popup.close();
+            toast("Não foi possível gerar o documento de demonstração.");
+        });
+    }
+
+    function pdfPayloadForLot(l) {
+        return {
+            tipo: "lote",
+            material: l.tipoTecido,
+            peso: Number(l.peso),
+            finalidade: l.finalidade,
+            industria: nomes.INDUSTRIA,
+            industriaCnpj: "Demonstração",
+            temMarca: !!l.temMarca,
+            assinatura: signatureData()
+        };
+    }
+
+    function pdfPayloadForRequest(r, l) {
+        return {
+            tipo: "solicitacao",
+            material: l.tipoTecido,
+            peso: Number(r.quantidade),
+            finalidade: l.finalidade,
+            industria: l.industriaNome || nomes.INDUSTRIA,
+            industriaCnpj: "Demonstração",
+            recebedor: r.nome || nomes[r.perfil] || "Solicitante",
+            recebedorCnpj: "Demonstração",
+            temMarca: !!l.temMarca,
+            assinatura: signatureData()
+        };
+    }
+
+    function bindPdfButtons(root) {
+        (root || document).querySelectorAll("[data-demo-pdf]").forEach(btn => {
+            if (btn.dataset.demoPdfBound === "true") return;
+            btn.dataset.demoPdfBound = "true";
+            btn.addEventListener("click", () => {
+                const x = state();
+                if (btn.dataset.demoPdf === "lote") {
+                    const l = x.lotes.find(v => v.id === btn.dataset.demoLote);
+                    if (l) abrirPdfDemo(pdfPayloadForLot(l));
+                } else {
+                    const r = x.solicitacoes.find(v => v.id === btn.dataset.demoRequest);
+                    const l = r && x.lotes.find(v => v.id === r.loteId);
+                    if (r && l) abrirPdfDemo(pdfPayloadForRequest(r, l));
+                }
+            });
+        });
     }
 
     function renderIndustryRequests(s) {
@@ -238,42 +318,102 @@
         const empty = panel.querySelector(".empty-note");
         if (!body) return;
         const reqs = s.solicitacoes.filter(r => r.industriaPerfil === "INDUSTRIA");
+
         body.innerHTML = reqs.map(r => {
             const l = s.lotes.find(x => x.id === r.loteId);
             if (!l) return "";
             let action = "";
+
             if (r.status === "PENDENTE") {
                 action = `<button type="button" class="btn btn-primary btn-sm" data-demo-accept="${r.id}">Aceitar</button>
                           <button type="button" class="btn btn-recusar btn-sm" data-demo-reject="${r.id}">Recusar</button>`;
-            } else if (r.status === "ACEITA" && (l.finalidade === "doacao" || r.pagamentoStatus === "PAGO")) {
-                action = `<form class="pin-confirm-form" data-demo-retirada="${r.id}">
-                    <input type="text" maxlength="4" inputmode="numeric" placeholder="PIN" required>
-                    <button type="submit" class="btn btn-primary btn-sm">Confirmar</button>
-                </form>`;
             } else if (r.status === "ACEITA") {
-                action = `<span class="status-text">Aguardando pagamento.</span>`;
+                action = `<div class="industria-aceita">
+                    <div class="industria-acoes-icones">
+                        <button type="button" class="tc-icon-action" data-tooltip="Ver informações" aria-label="Ver informações" data-demo-contact="${r.id}">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>
+                        </button>
+                        <button type="button" class="tc-icon-action demo-pdf-link" data-tooltip="Ver PDF" aria-label="Ver PDF" data-demo-pdf="request" data-demo-request="${r.id}">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4v13H6z"></path><path d="M14 3.5v4h4"></path><path d="M8.5 15h7"></path><path d="M8.5 18h5"></path></svg>
+                        </button>
+                    </div>
+                    ${l.finalidade === "doacao" || r.pagamentoStatus === "PAGO"
+                        ? `<form class="pin-confirm-form" data-demo-retirada="${r.id}"><input type="text" maxlength="4" inputmode="numeric" placeholder="PIN" required><button type="submit" class="btn btn-primary btn-sm">Confirmar</button></form>`
+                        : ""}
+                </div>`;
             } else {
                 action = `<span class="status-text">${esc(r.status === "RECUSADA" ? "Solicitação recusada." : "Material retirado.")}</span>`;
             }
-            const pagamento = l.finalidade === "venda" ? (r.pagamentoStatus === "PAGO" ? '<span class="pagamento-badge pagamento-badge--confirmado">Confirmado</span>' : '<span class="pagamento-badge pagamento-badge--aguardando">Aguardando</span>') : '<span class="pagamento-badge pagamento-badge--na">—</span>';
-            return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(r.nome || nomes[r.perfil] || "Solicitante")}</td><td>${l.finalidade === "doacao" ? "Doação" : "Venda"}</td><td><span class="chip chip--disponivel">${esc(r.status)}</span></td><td class="solicitacoes-industria-pagamento">${pagamento}</td><td class="solicitacoes-industria-acoes-cell"><div class="solicitacao-acoes">${action}</div></td></tr>`;
+
+            const pagamento = l.finalidade === "venda"
+                ? (r.pagamentoStatus === "PAGO" ? '<span class="pagamento-badge pagamento-badge--confirmado">Confirmado</span>' : '<span class="pagamento-badge pagamento-badge--aguardando">Aguardando</span>')
+                : '<span class="pagamento-badge pagamento-badge--na">—</span>';
+
+            return `<tr>
+                <td>${esc(l.tipoTecido)}</td>
+                <td>${esc(r.nome || nomes[r.perfil] || "Solicitante")}</td>
+                <td>${l.finalidade === "doacao" ? "Doação" : "Venda"}</td>
+                <td><span class="chip chip--disponivel">${esc(r.status)}</span></td>
+                <td class="solicitacoes-industria-pagamento">${pagamento}</td>
+                <td class="solicitacoes-industria-acoes-cell"><div class="solicitacao-acoes">${action}</div></td>
+            </tr>`;
         }).join("");
         if (empty) empty.hidden = reqs.length > 0;
 
         panel.querySelectorAll("[data-demo-accept]").forEach(b => b.onclick = () => {
-            const x = state(); const r = x.solicitacoes.find(v => v.id === b.dataset.demoAccept); if (!r) return;
-            r.status = "ACEITA"; r.pin = String(Math.floor(1000 + Math.random() * 9000)); save(x); toast("Solicitação aceita. PIN gerado: " + r.pin); renderAll();
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === b.dataset.demoAccept);
+            if (!r) return;
+            r.status = "ACEITA";
+            if (!r.pin) r.pin = String(Math.floor(1000 + Math.random() * 9000));
+            save(x);
+            toast("Solicitação aceita.");
+            renderAll();
         });
+
         panel.querySelectorAll("[data-demo-reject]").forEach(b => b.onclick = () => {
-            const x = state(); const r = x.solicitacoes.find(v => v.id === b.dataset.demoReject); if (!r) return;
-            r.status = "RECUSADA"; save(x); toast("Solicitação recusada."); renderAll();
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === b.dataset.demoReject);
+            if (!r) return;
+            r.status = "RECUSADA";
+            save(x);
+            toast("Solicitação recusada.");
+            renderAll();
         });
+
         panel.querySelectorAll("[data-demo-retirada]").forEach(f => f.onsubmit = e => {
-            e.preventDefault(); const x = state(); const r = x.solicitacoes.find(v => v.id === f.dataset.demoRetirada); const l = r && x.lotes.find(v => v.id === r.loteId); const pin = f.querySelector("input")?.value;
+            e.preventDefault();
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === f.dataset.demoRetirada);
+            const l = r && x.lotes.find(v => v.id === r.loteId);
+            const pin = f.querySelector("input")?.value;
             if (!r || !l) return;
-            if (String(r.pin || "") !== String(pin || "")) { toast("PIN incorreto."); return; }
-            r.status = "RETIRADA"; l.peso = Math.max(0, Number(l.peso) - Number(r.quantidade)); if (l.peso <= 0) l.status = "Encerrado"; save(x); toast("Retirada confirmada com sucesso."); renderAll();
+            if (String(r.pin || "") !== String(pin || "")) {
+                toast("PIN incorreto.");
+                return;
+            }
+            r.status = "RETIRADA";
+            l.peso = Math.max(0, Number(l.peso) - Number(r.quantidade));
+            if (l.peso <= 0) l.status = "Encerrado";
+            save(x);
+            toast("Retirada confirmada com sucesso.");
+            renderAll();
         });
+
+        panel.querySelectorAll("[data-demo-contact]").forEach(b => b.onclick = () => {
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === b.dataset.demoContact);
+            if (!r) return;
+            const existing = panel.querySelector('[data-demo-contact-popover="' + r.id + '"]');
+            if (existing) { existing.remove(); return; }
+            const pop = document.createElement("div");
+            pop.className = "tc-contact-popover";
+            pop.dataset.demoContactPopover = r.id;
+            pop.innerHTML = `<strong>${r.perfil === "MICROEMPRESA" ? "Microempresa" : "ONG"}</strong><div>Nome: ${esc(r.nome || nomes[r.perfil])}</div><div>Perfil: ${esc(r.perfil)}</div><div>Contato: disponível apenas na demonstração</div>`;
+            b.parentElement.style.position = "relative";
+            b.parentElement.appendChild(pop);
+        });
+        bindPdfButtons(panel);
     }
 
     function renderIndustrySustainability(s) {
@@ -294,16 +434,19 @@
         if (!grid) return;
         const finalidade = profile === "MICROEMPRESA" ? "venda" : "doacao";
         const lots = s.lotes.filter(l => l.finalidade === finalidade && Number(l.peso) > 0 && l.status === "Disponível");
+
         grid.innerHTML = lots.map(l => {
             const precoKg = l.finalidade === "venda" ? Number(l.precoFinal || 0) / Number(l.pesoOriginal || l.peso || 1) : 0;
-            const active = s.solicitacoes.some(r => r.loteId === l.id && r.perfil === profile && ["PENDENTE","ACEITA"].includes(r.status));
+            const req = s.solicitacoes.find(r => r.loteId === l.id && r.perfil === profile && ["PENDENTE","ACEITA"].includes(r.status));
             return `<div class="product-card">
                 <div class="product-thumb">${l.imagem ? `<img src="${l.imagem}" style="width:100%;height:100%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M6 7v13h12V7M9 7V4h6v3"/></svg>`}</div>
                 <div class="product-body"><h3>${esc(l.tipoTecido)}</h3><p class="product-source">${profile === "MICROEMPRESA" ? "Vendido por " : "Doado por "}${esc(l.industriaNome)}</p>
                 <div class="product-meta"><span>${Number(l.peso).toLocaleString("pt-BR")} kg disponíveis</span></div>
                 <div class="product-foot">
                 ${profile === "MICROEMPRESA" ? `<div class="product-price-block"><span class="product-price-label">Preço por kg</span><strong class="product-price">${money(precoKg)} / kg</strong></div>` : `<span class="chip chip--gratuito">Gratuito</span>`}
-                ${active ? `<div class="lote-solicitado-box"><span class="lote-solicitado-status">✓ Solicitação enviada</span></div>` : `<form class="solicitar-form demo-request-form" data-lote="${l.id}"><label class="quantidade-label">Quantidade desejada</label><div class="quantidade-preco-row"><input type="number" class="input-quantidade" min="0.1" step="0.1" max="${Number(l.peso)}" value="1" required>${profile === "MICROEMPRESA" ? `<div class="valor-dinamico"><span>Total</span><strong class="preco-selecionado">${money(precoKg)}</strong></div>` : ""}</div><button type="submit" class="btn btn-primary btn-sm">${profile === "MICROEMPRESA" ? "Solicitar compra" : "Solicitar lote"}</button></form>`}
+                ${req
+                    ? `<div class="lote-solicitado-box"><span class="lote-solicitado-status">✓ ${req.pagamentoStatus === "PAGO" ? "Compra confirmada" : "Solicitação enviada"}</span>${req.status === "PENDENTE" ? `<button type="button" class="btn btn-cancelar-solicitacao" data-demo-cancel="${req.id}">Cancelar solicitação</button>` : ""}</div>`
+                    : `<form class="solicitar-form demo-request-form" data-lote="${l.id}"><label class="quantidade-label">Quantidade desejada</label><div class="quantidade-preco-row"><input type="number" class="input-quantidade" min="0.1" step="0.1" max="${Number(l.peso)}" value="1" required>${profile === "MICROEMPRESA" ? `<div class="valor-dinamico"><span>Total</span><strong class="preco-selecionado">${money(precoKg)}</strong></div>` : ""}</div><button type="submit" class="btn btn-primary btn-sm">${profile === "MICROEMPRESA" ? "Solicitar compra" : "Solicitar lote"}</button></form>`}
                 </div></div></div>`;
         }).join("");
         if (empty) empty.hidden = lots.length > 0;
@@ -312,16 +455,38 @@
             const loteId = form.dataset.lote;
             const input = form.querySelector(".input-quantidade");
             const total = form.querySelector(".preco-selecionado");
-            const update = () => { const l = state().lotes.find(x => x.id === loteId); if (l && total) total.textContent = money((Number(l.precoFinal || 0) / Number(l.pesoOriginal || l.peso || 1)) * Number(input.value || 0)); };
-            input?.addEventListener("input", update); update();
+            const update = () => {
+                const l = state().lotes.find(x => x.id === loteId);
+                if (l && total) total.textContent = money((Number(l.precoFinal || 0) / Number(l.pesoOriginal || l.peso || 1)) * Number(input.value || 0));
+            };
+            input?.addEventListener("input", update);
+            update();
             form.onsubmit = e => {
-                e.preventDefault(); const x = state(); const l = x.lotes.find(v => v.id === loteId); const q = Number(input.value);
+                e.preventDefault();
+                const x = state();
+                const l = x.lotes.find(v => v.id === loteId);
+                const q = Number(input.value);
                 if (!l || q <= 0 || q > Number(l.peso)) { toast("Quantidade inválida."); return; }
-                if (x.solicitacoes.some(r => r.loteId === loteId && r.perfil === profile && ["PENDENTE","ACEITA"].includes(r.status))) { toast("Você já possui uma solicitação ativa para este lote."); return; }
+                if (x.solicitacoes.some(r => r.loteId === loteId && r.perfil === profile && ["PENDENTE","ACEITA"].includes(r.status))) {
+                    toast("Você já possui uma solicitação ativa para este lote.");
+                    return;
+                }
                 const precoKg = profile === "MICROEMPRESA" ? Number(l.precoFinal || 0) / Number(l.pesoOriginal || l.peso || 1) : 0;
                 x.solicitacoes.push({ id: uid("sol"), loteId, perfil: profile, nome: nomes[profile], industriaPerfil: "INDUSTRIA", quantidade: q, valor: precoKg * q, status: "PENDENTE", pagamentoStatus: "AGUARDANDO", pin: null, criadoEm: new Date().toISOString() });
-                save(x); toast("Solicitação enviada para a indústria."); renderAll();
+                save(x);
+                toast("Solicitação enviada para a indústria.");
+                renderAll();
             };
+        });
+
+        panel.querySelectorAll("[data-demo-cancel]").forEach(b => b.onclick = () => {
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === b.dataset.demoCancel);
+            if (!r) return;
+            r.status = "CANCELADA";
+            save(x);
+            toast("Solicitação cancelada.");
+            renderAll();
         });
     }
 
@@ -332,18 +497,82 @@
         const empty = panel.querySelector(".empty-note");
         if (!body) return;
         const reqs = s.solicitacoes.filter(r => r.perfil === profile);
+
         body.innerHTML = reqs.map(r => {
-            const l = s.lotes.find(x => x.id === r.loteId); if (!l) return "";
-            let actions = r.status === "PENDENTE" ? `<button type="button" class="btn btn-cancelar-solicitacao" data-demo-cancel="${r.id}">Cancelar solicitação</button>` : "";
-            if (r.status === "ACEITA" && l.finalidade === "venda" && r.pagamentoStatus !== "PAGO") actions = `<button type="button" class="btn btn-pagamento-pix" data-demo-pay="${r.id}">Pagar com PIX</button><button type="button" class="btn btn-pagamento-dinheiro" data-demo-pay-money="${r.id}">Pagar em dinheiro</button>`;
-            if (r.status === "ACEITA" && (l.finalidade === "doacao" || r.pagamentoStatus === "PAGO")) actions = `<button type="button" class="btn btn-primary btn-sm" data-demo-pickup="${r.id}">Confirmar retirada</button>`;
-            if (r.status === "RETIRADA") actions = `<span class="status-text">Material retirado.</span>`;
-            return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td>${l.finalidade === "venda" ? money(r.valor) : "Gratuito"}</td><td><span class="chip chip--disponivel">${esc(r.status)}</span></td><td>${actions}${r.pin ? `<div class="pin-display">PIN: <strong>${esc(r.pin)}</strong></div>` : ""}</td></tr>`;
+            const l = s.lotes.find(x => x.id === r.loteId);
+            if (!l) return "";
+            let actions = "";
+
+            if (r.status === "PENDENTE") {
+                actions = `<span class="status-text">Aguardando análise da indústria.</span>`;
+            } else if (r.status === "ACEITA" && profile === "MICROEMPRESA" && l.finalidade === "venda") {
+                if (r.pagamentoStatus === "PAGO") {
+                    actions = `<div class="tc-actions-row"><div class="venda-pago">
+                        <button type="button" class="btn btn-pagamento-pdf demo-pdf-link" data-demo-pdf="request" data-demo-request="${r.id}">Ver PDF</button>
+                        <span class="pagamento-confirmado-inline">✓ Pagamento confirmado</span>
+                        <span class="pin-display">PIN: <strong>${esc(r.pin || "0000")}</strong></span>
+                    </div></div>`;
+                } else {
+                    actions = `<div class="tc-actions-row"><div class="venda-acoes">
+                        <button type="button" class="btn btn-pagamento-pdf demo-pdf-link" data-demo-pdf="request" data-demo-request="${r.id}">Ver PDF</button>
+                        <button type="button" class="btn btn-pagamento-pix" data-demo-pay="${r.id}">Pagar com PIX</button>
+                        <button type="button" class="btn btn-pagamento-dinheiro" data-demo-pay-money="${r.id}">Pagar em dinheiro</button>
+                    </div></div>`;
+                }
+            } else if (r.status === "ACEITA" && profile === "ONG") {
+                actions = `<div class="tc-actions-row tc-actions-row--ong">
+                    <button type="button" class="tc-icon-action" data-tooltip="Ver informações" aria-label="Ver informações" data-demo-buyer-contact="${r.id}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>
+                    </button>
+                    <button type="button" class="tc-icon-action demo-pdf-link" data-tooltip="Ver PDF" aria-label="Ver PDF" data-demo-pdf="request" data-demo-request="${r.id}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4v13H6z"></path><path d="M14 3.5v4h4"></path><path d="M8.5 15h7"></path><path d="M8.5 18h5"></path></svg>
+                    </button>
+                    <span class="pin-display">Seu PIN: <strong>${esc(r.pin || "0000")}</strong></span>
+                </div>`;
+            } else if (r.status === "ACEITA") {
+                actions = `<span class="status-text">Aguardando retirada.</span>`;
+            } else if (r.status === "RETIRADA") {
+                actions = `<span class="status-text">Material retirado.</span>`;
+            } else if (r.status === "RECUSADA") {
+                actions = `<span class="status-text">Solicitação recusada.</span>`;
+            } else if (r.status === "CANCELADA") {
+                actions = `<span class="status-text">Solicitação cancelada.</span>`;
+            }
+
+            if (profile === "ONG") {
+                return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td><span class="chip chip--disponivel">${esc(r.status)}</span></td><td>${actions}</td></tr>`;
+            }
+            return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td>${l.finalidade === "venda" ? money(r.valor) : "Gratuito"}</td><td><span class="chip chip--disponivel">${esc(r.status)}</span></td><td>${actions}</td></tr>`;
         }).join("");
+
         if (empty) empty.hidden = reqs.length > 0;
-        panel.querySelectorAll("[data-demo-cancel]").forEach(b => b.onclick = () => { const x = state(); const r = x.solicitacoes.find(v => v.id === b.dataset.demoCancel); if (r) { r.status = "CANCELADA"; save(x); renderAll(); toast("Solicitação cancelada."); } });
-        panel.querySelectorAll("[data-demo-pay], [data-demo-pay-money]").forEach(b => b.onclick = () => { const x = state(); const r = x.solicitacoes.find(v => v.id === (b.dataset.demoPay || b.dataset.demoPayMoney)); if (r) { r.pagamentoStatus = "PAGO"; if (!r.pin) r.pin = String(Math.floor(1000 + Math.random()*9000)); save(x); renderAll(); toast("Pagamento simulado confirmado."); } });
-        panel.querySelectorAll("[data-demo-pickup]").forEach(b => b.onclick = () => { const x = state(); const r = x.solicitacoes.find(v => v.id === b.dataset.demoPickup); const l = r && x.lotes.find(v => v.id === r.loteId); if (!r || !l) return; r.status = "RETIRADA"; l.peso = Math.max(0, Number(l.peso) - Number(r.quantidade)); if (l.peso <= 0) l.status = "Encerrado"; save(x); renderAll(); toast("Retirada confirmada. O ciclo foi encerrado."); });
+
+        panel.querySelectorAll("[data-demo-pay], [data-demo-pay-money]").forEach(b => b.onclick = () => {
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === (b.dataset.demoPay || b.dataset.demoPayMoney));
+            if (!r) return;
+            r.pagamentoStatus = "PAGO";
+            if (!r.pin) r.pin = String(Math.floor(1000 + Math.random() * 9000));
+            save(x);
+            toast("Pagamento simulado confirmado.");
+            renderAll();
+        });
+
+        panel.querySelectorAll("[data-demo-buyer-contact]").forEach(b => b.onclick = () => {
+            const x = state();
+            const r = x.solicitacoes.find(v => v.id === b.dataset.demoBuyerContact);
+            if (!r) return;
+            const existing = panel.querySelector('[data-demo-buyer-popover="' + r.id + '"]');
+            if (existing) { existing.remove(); return; }
+            const pop = document.createElement("div");
+            pop.className = "tc-contact-popover";
+            pop.dataset.demoBuyerPopover = r.id;
+            pop.innerHTML = `<strong>Informações da indústria</strong><div>Nome: ${esc(r.industriaNome || nomes.INDUSTRIA)}</div><div>Perfil: Indústria</div><div>Contato: disponível apenas na demonstração</div>`;
+            b.parentElement.style.position = "relative";
+            b.parentElement.appendChild(pop);
+        });
+
+        bindPdfButtons(panel);
     }
 
     function renderAll() {
