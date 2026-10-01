@@ -50,4 +50,14 @@ public class EmailService {
                                                 "Apresente este PIN na indústria no momento da retirada. Você tem até 72 horas para retirar o material.");
                 mailSender.send(msg);
         }
+
+        public void enviarResultado(String email, boolean b) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'enviarResultado'");
+        }
+
+        public void enviarSolicitacaoAprovacao(String nome, String tipo, String linkRevisar) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'enviarSolicitacaoAprovacao'");
+        }
 }
