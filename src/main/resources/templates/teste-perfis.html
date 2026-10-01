@@ -9,13 +9,43 @@
     <link rel="stylesheet" th:href="@{/css/teste-perfis.css}">
 </head>
 <body>
+<header class="demo-nav">
+    <div class="demo-nav-inner" style="position: relative;">
+    <a class="demo-logo" th:href="@{/}">
+        <img src="/images/logo.png" alt="TexCiclo">
+        Tex<span>Ciclo</span>
+    </a>
+
+    <a th:href="@{/}"
+       style="
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #efe9d8;
+            text-decoration: none;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 10px 16px;
+            border: 1px solid rgba(239, 233, 216, 0.45);
+            border-radius: 4px;
+            transition: all 0.2s ease;
+       ">
+        Retornar para o site
+    </a>
+</div>
+</header>
+
 <main class="demo-main">
     <section class="demo-hero">
         <div class="demo-eyebrow">Acesso livre</div>
         <h1>Conheça a plataforma TexCiclo.</h1>
         <p>
             Escolha um perfil para entrar diretamente no sistema e navegar livremente.
-            Não é necessário criar conta. Você estará usando um perfil de demonstração.
+            Não é necessário criar conta ou fazer login. Você estará usando um perfil de demonstração.
         </p>
     </section>
 
