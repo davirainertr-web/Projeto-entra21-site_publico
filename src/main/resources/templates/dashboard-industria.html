@@ -218,14 +218,14 @@
                     </div>
 
                     <div class="signature-manager__preview">
-                        <div class="signature-preview-box" id="assinaturaPreview">
-                            <img th:if="${usuarioLogado != null and usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isBlank()}"
-                                 th:src="@{'/uploads/' + ${usuarioLogado.assinaturaDigital}}"
-                                 alt="Sua assinatura digital">
-                            <th:block th:unless="${usuarioLogado != null and usuarioLogado.assinaturaDigital != null and !usuarioLogado.assinaturaDigital.isBlank()}">
-                                <strong>Você ainda não possui uma assinatura.</strong>
-                                <span>Crie uma para que ela seja colocada nos próximos PDFs.</span>
-                            </th:block>
+                        <div class="signature-preview-box" hidden>
+                            <img src="" alt="Sua assinatura digital">
+                            <span>Assinatura cadastrada</span>
+                        </div>
+
+                        <div class="signature-empty">
+                            <strong>Você ainda não possui uma assinatura.</strong>
+                            <span>Crie uma para que ela seja colocada nos próximos PDFs.</span>
                         </div>
 
                         <button type="button"
@@ -741,7 +741,7 @@
         });
     </script>
 
-<script th:src="@{/js/demo-local.js(v=4)}" th:if="${demoMode}"></script>
+<script th:src="@{/js/demo-local.js(v=5)}" th:if="${demoMode}"></script>
 </body>
 
 </html>

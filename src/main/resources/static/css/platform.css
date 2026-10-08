@@ -1149,16 +1149,20 @@
   gap:12px;
 }
 
-.signature-preview-box{
+.signature-preview-box,
+.signature-empty{
   min-height:92px;
   padding:14px;
   border:1px dashed var(--line);
   border-radius:var(--radius);
   background:var(--paper);
+}
+
+.signature-preview-box{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:5px;
+  gap:6px;
 }
 
 .signature-preview-box img{
@@ -1169,15 +1173,24 @@
   object-position:left center;
 }
 
-.signature-preview-box span{
+.signature-preview-box span,
+.signature-empty span{
   color:var(--muted);
   font-size:.75rem;
 }
 
-.signature-preview-box strong{
+.signature-empty{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+}
+
+.signature-empty strong{
   font-size:.84rem;
   color:var(--ink);
 }
+
 .signature-button{
   width:100%;
   min-height:44px;
@@ -2195,19 +2208,6 @@
   min-width: 0;
 }
 
-/* Informações abertas pelo olhinho: ficam dentro da própria linha
-   para que a tabela aumente de altura em vez de cortar o conteúdo. */
-#painel-solicitacoes .solicitacao-acoes > .tc-contact-popover {
-  position: static;
-  flex: 0 0 100%;
-  width: min(320px, 100%);
-  min-width: 0;
-  max-width: 320px;
-  margin-top: 4px;
-  box-sizing: border-box;
-  z-index: auto;
-}
-
 #painel-solicitacoes .solicitacao-acoes > .industria-aceita {
   display: flex !important;
   flex-direction: row !important;
@@ -2668,3 +2668,12 @@
         min-width: max-content;
     }
 } 
+/* Contatos da ONG ficam fora da tabela para evitar cortes. */
+body[data-demo-mode="true"] .demo-contact-floating {
+    position: fixed;
+    z-index: 300;
+    min-width: 0;
+    width: max-content;
+    max-width: calc(100vw - 16px);
+    overflow-wrap: anywhere;
+}

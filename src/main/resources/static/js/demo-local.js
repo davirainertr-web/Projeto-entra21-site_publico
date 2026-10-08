@@ -10,6 +10,7 @@
     const STORAGE_KEY = "texciclo_demo_public_v3";
     const SIGNATURE_KEY = "texciclo_demo_public_signature_v1";
     const TAXA = 0.10;
+    let closeContact = null;
     const perfil = () => (document.body.dataset.demoPerfil || "").toUpperCase();
 
     const nomes = {
@@ -61,13 +62,12 @@
         button.classList.toggle("signature-button--saved", has);
         button.textContent = has ? "Assinatura cadastrada · Alterar" : "Criar assinatura digital";
         const preview = document.querySelector(".signature-preview-box");
+        const empty = document.querySelector(".signature-empty");
         if (preview) {
-            if (has) {
-                preview.innerHTML = '<img src="' + signatureData() + '" alt="Sua assinatura digital">';
-            } else {
-                preview.innerHTML = '<strong>Você ainda não possui uma assinatura.</strong><span>Crie uma para que ela seja colocada nos próximos PDFs.</span>';
-            }
+            preview.hidden = !has;
+            if (has) preview.innerHTML = '<img src="' + signatureData() + '" alt="Sua assinatura digital"><span>Assinatura cadastrada</span>';
         }
+        if (empty) empty.hidden = has;
     }
 
     function initSignatureLocal() {
@@ -89,6 +89,10 @@
             e.preventDefault();
             e.stopImmediatePropagation();
 
+            if (document.getElementById("salvarAssinatura").disabled) {
+                toast("Desenhe sua assinatura antes de salvar.");
+                return;
+            }
             let data = input.value || "";
             if (!data && canvas) {
                 try { data = canvas.toDataURL("image/png"); } catch (_) { data = ""; }
@@ -116,6 +120,23 @@
         }, true);
 
         updateSignatureUI();
+        const modal = document.getElementById("assinaturaModal");
+        const required = () => modal && !signatureData();
+        document.addEventListener("click", e => {
+            if (required() && (e.target === modal || e.target.closest('[data-modal-close="assinaturaModal"]'))) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        }, true);
+        document.addEventListener("keydown", e => {
+            if (required() && e.key === "Escape") {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        }, true);
+        setTimeout(() => {
+            if (required() && modal.hidden) document.getElementById("btnAssinatura").click();
+        }, 200);
     }
 
     function imageFromFile(file, cb) {
@@ -402,22 +423,7 @@
         });
 
         panel.querySelectorAll("[data-demo-contact]").forEach(b => b.onclick = () => {
-            const x = state();
-            const r = x.solicitacoes.find(v => v.id === b.dataset.demoContact);
-            if (!r) return;
-            const existing = panel.querySelector('[data-demo-contact-popover="' + r.id + '"]');
-            if (existing) { existing.remove(); return; }
-            const pop = document.createElement("div");
-            pop.className = "tc-contact-popover";
-            pop.dataset.demoContactPopover = r.id;
-            pop.innerHTML = `<strong>${r.perfil === "MICROEMPRESA" ? "Microempresa" : "ONG"}</strong><div>Nome: ${esc(r.nome || nomes[r.perfil])}</div><div>Perfil: ${esc(r.perfil)}</div><div>Contato: disponível apenas na demonstração</div>`;
-            const actions = b.closest(".solicitacao-acoes");
-            if (actions) {
-                actions.appendChild(pop);
-            } else {
-                b.parentElement.style.position = "relative";
-                b.parentElement.appendChild(pop);
-            }
+            window.location.href = "/demo-organizacao.html?solicitacao=" + encodeURIComponent(b.dataset.demoContact);
         });
         bindPdfButtons(panel);
     }
@@ -565,23 +571,46 @@
         });
 
         panel.querySelectorAll("[data-demo-buyer-contact]").forEach(b => b.onclick = () => {
-            const x = state();
-            const r = x.solicitacoes.find(v => v.id === b.dataset.demoBuyerContact);
-            if (!r) return;
-            const existing = panel.querySelector('[data-demo-buyer-popover="' + r.id + '"]');
-            if (existing) { existing.remove(); return; }
+            const existing = document.getElementById("demo-industry-contact");
+            const same = existing && existing.dataset.request === b.dataset.demoBuyerContact;
+            if (closeContact) closeContact();
+            panel.querySelectorAll("[data-demo-buyer-contact]").forEach(button => button.setAttribute("aria-expanded", "false"));
+            if (same) return;
             const pop = document.createElement("div");
-            pop.className = "tc-contact-popover";
-            pop.dataset.demoBuyerPopover = r.id;
-            pop.innerHTML = `<strong>Informações da indústria</strong><div>Nome: ${esc(r.industriaNome || nomes.INDUSTRIA)}</div><div>Perfil: Indústria</div><div>Contato: disponível apenas na demonstração</div>`;
-            b.parentElement.style.position = "relative";
-            b.parentElement.appendChild(pop);
+            pop.id = "demo-industry-contact";
+            pop.className = "tc-contact-popover demo-contact-floating";
+            pop.dataset.request = b.dataset.demoBuyerContact;
+            pop.innerHTML = '<div>E-mail: demo.industria@texciclo.local</div><div>Telefone: (47) 0000-0000</div>';
+            document.body.appendChild(pop);
+            b.setAttribute("aria-expanded", "true");
+            b.setAttribute("aria-controls", pop.id);
+            const position = () => {
+                if (!b.isConnected || !b.getClientRects().length) { pop.remove(); return; }
+                const rect = b.getBoundingClientRect();
+                const width = pop.offsetWidth, height = pop.offsetHeight;
+                pop.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)) + "px";
+                pop.style.top = Math.max(8, rect.bottom + height + 8 <= window.innerHeight ? rect.bottom + 8 : rect.top - height - 8) + "px";
+            };
+            const cleanup = () => {
+                pop.remove(); b.setAttribute("aria-expanded", "false");
+                window.removeEventListener("resize", position);
+                document.removeEventListener("scroll", position, true);
+                document.removeEventListener("click", outside);
+                closeContact = null;
+            };
+            closeContact = cleanup;
+            position();
+            const outside = e => { if (!b.contains(e.target) && !pop.contains(e.target)) cleanup(); };
+            window.addEventListener("resize", position);
+            document.addEventListener("scroll", position, true);
+            setTimeout(() => { if (pop.isConnected) document.addEventListener("click", outside); }, 0);
         });
 
         bindPdfButtons(panel);
     }
 
     function renderAll() {
+        if (closeContact) closeContact();
         const p = perfil();
         const s = state();
         if (p === "INDUSTRIA") {
@@ -593,8 +622,30 @@
         if (typeof window.texcicloDemoInfoRefresh === "function") requestAnimationFrame(window.texcicloDemoInfoRefresh);
     }
 
+    function renderOrganization() {
+        const s = state();
+        const id = new URLSearchParams(window.location.search).get("solicitacao");
+        const r = s.solicitacoes.find(v => v.id === id && v.industriaPerfil === "INDUSTRIA" && v.status === "ACEITA");
+        const l = r && s.lotes.find(v => v.id === r.loteId);
+        if (!r || !l) {
+            document.querySelector(".info-card").textContent = "Estas informações não estão mais disponíveis. Volte para solicitações.";
+            return;
+        }
+        const values = {
+            nome: r.nome || nomes[r.perfil], tipo: r.perfil === "ONG" ? "ONG" : "Microempresa",
+            cnpj: "00.000.000/0000-00", cidade: "Blumenau - SC", telefone: "(47) 0000-0000",
+            email: r.perfil === "ONG" ? "demo.ong@texciclo.local" : "demo.micro@texciclo.local",
+            descricao: r.perfil === "ONG" ? "Organização fictícia de demonstração do TexCiclo." : "Microempresa fictícia de demonstração do TexCiclo.",
+            material: l.tipoTecido, quantidade: Number(r.quantidade).toLocaleString("pt-BR") + " kg"
+        };
+        document.querySelectorAll("[data-organization-field]").forEach(el => {
+            el.textContent = values[el.dataset.organizationField] || "Não informado";
+        });
+    }
+
     function start() {
         if (document.body.dataset.demoMode !== "true") return;
+        if (document.body.dataset.demoOrganization === "true") { renderOrganization(); return; }
         initSignatureLocal();
         renderAll();
         document.querySelectorAll(".dash-tab").forEach(tab => {
