@@ -24,13 +24,35 @@
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
                 const s = JSON.parse(raw);
-                if (s && Array.isArray(s.lotes) && Array.isArray(s.solicitacoes)) return s;
+                if (s && Array.isArray(s.lotes) && Array.isArray(s.solicitacoes)) {
+                    // Compras antigas também passam diretamente para o pagamento.
+                    let changed = false;
+                    s.solicitacoes.forEach(r => {
+                        const l = s.lotes.find(l => l.id === r.loteId);
+                        if (l?.finalidade === "venda" && r.status === "PENDENTE") {
+                            r.status = "ACEITA";
+                            changed = true;
+                        }
+                    });
+                    if (changed) save(s);
+                    return s;
+                }
             }
         } catch (e) { console.warn("TexCiclo demo localStorage:", e); }
         return { lotes: [], solicitacoes: [] };
     }
 
     function save(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+    // O peso físico só diminui na retirada; compras ativas reservam o estoque.
+    function availableWeight(s, l, exceptId) {
+        const reserved = s.solicitacoes.filter(r => r.loteId === l.id && r.id !== exceptId && r.status === "ACEITA")
+            .reduce((sum, r) => sum + Number(r.quantidade || 0), 0);
+        return Math.max(0, Number(l.peso) - reserved);
+    }
+    function requestStatus(r, l) {
+        return l.finalidade === "venda" && r.status === "ACEITA"
+            ? (r.pagamentoStatus === "PAGO" ? "Aguardando retirada" : "Aguardando pagamento") : r.status;
+    }
     function uid(prefix) { return prefix + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8); }
     function money(v) { return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
@@ -347,7 +369,7 @@
             let action = "";
 
             if (r.status === "PENDENTE") {
-                action = `<button type="button" class="btn btn-primary btn-sm" data-demo-accept="${r.id}">Aceitar</button>
+                action = `<button type="button" class="tc-icon-action" data-tooltip="Ver informações" aria-label="Ver informações" data-demo-contact="${r.id}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button><button type="button" class="btn btn-primary btn-sm" data-demo-accept="${r.id}">Aceitar</button>
                           <button type="button" class="btn btn-recusar btn-sm" data-demo-reject="${r.id}">Recusar</button>`;
             } else if (r.status === "ACEITA") {
                 action = `<div class="industria-aceita">
@@ -375,7 +397,7 @@
                 <td>${esc(l.tipoTecido)}</td>
                 <td>${esc(r.nome || nomes[r.perfil] || "Solicitante")}</td>
                 <td>${l.finalidade === "doacao" ? "Doação" : "Venda"}</td>
-                <td><span class="chip chip--disponivel">${esc(r.status)}</span></td>
+                <td><span class="chip chip--disponivel">${esc(requestStatus(r, l))}</span></td>
                 <td class="solicitacoes-industria-pagamento">${pagamento}</td>
                 <td class="solicitacoes-industria-acoes-cell"><div class="solicitacao-acoes">${action}</div></td>
             </tr>`;
@@ -385,7 +407,9 @@
         panel.querySelectorAll("[data-demo-accept]").forEach(b => b.onclick = () => {
             const x = state();
             const r = x.solicitacoes.find(v => v.id === b.dataset.demoAccept);
-            if (!r) return;
+            const l = r && x.lotes.find(l => l.id === r.loteId);
+            if (!r || !l || r.status !== "PENDENTE" || l.finalidade !== "doacao") return;
+            if (Number(r.quantidade) > availableWeight(x, l)) { toast("Este lote não tem mais a quantidade solicitada disponível."); return; }
             r.status = "ACEITA";
             if (!r.pin) r.pin = String(Math.floor(1000 + Math.random() * 9000));
             save(x);
@@ -409,7 +433,7 @@
             const r = x.solicitacoes.find(v => v.id === f.dataset.demoRetirada);
             const l = r && x.lotes.find(v => v.id === r.loteId);
             const pin = f.querySelector("input")?.value;
-            if (!r || !l) return;
+            if (!r || !l || r.status !== "ACEITA" || (l.finalidade === "venda" && r.pagamentoStatus !== "PAGO")) return;
             if (String(r.pin || "") !== String(pin || "")) {
                 toast("PIN incorreto.");
                 return;
@@ -448,17 +472,18 @@
         const lots = s.lotes.filter(l => l.finalidade === finalidade && Number(l.peso) > 0 && l.status === "Disponível");
 
         grid.innerHTML = lots.map(l => {
+            const available = availableWeight(s, l);
             const precoKg = l.finalidade === "venda" ? Number(l.precoFinal || 0) / Number(l.pesoOriginal || l.peso || 1) : 0;
             const req = s.solicitacoes.find(r => r.loteId === l.id && r.perfil === profile && ["PENDENTE","ACEITA"].includes(r.status));
             return `<div class="product-card">
                 <div class="product-thumb">${l.imagem ? `<img src="${l.imagem}" style="width:100%;height:100%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M6 7v13h12V7M9 7V4h6v3"/></svg>`}</div>
                 <div class="product-body"><h3>${esc(l.tipoTecido)}</h3><p class="product-source">${profile === "MICROEMPRESA" ? "Vendido por " : "Doado por "}${esc(l.industriaNome)}</p>
-                <div class="product-meta"><span>${Number(l.peso).toLocaleString("pt-BR")} kg disponíveis</span></div>
+                <div class="product-meta"><span>${available.toLocaleString("pt-BR")} kg disponíveis</span></div>
                 <div class="product-foot">
                 ${profile === "MICROEMPRESA" ? `<div class="product-price-block"><span class="product-price-label">Preço por kg</span><strong class="product-price">${money(precoKg)} / kg</strong></div>` : `<span class="chip chip--gratuito">Gratuito</span>`}
                 ${req
-                    ? `<div class="lote-solicitado-box"><span class="lote-solicitado-status">✓ ${req.pagamentoStatus === "PAGO" ? "Compra confirmada" : "Solicitação enviada"}</span>${req.status === "PENDENTE" ? `<button type="button" class="btn btn-cancelar-solicitacao" data-demo-cancel="${req.id}">Cancelar solicitação</button>` : ""}</div>`
-                    : `<form class="solicitar-form demo-request-form" data-lote="${l.id}"><label class="quantidade-label">Quantidade desejada</label><div class="quantidade-preco-row"><input type="number" class="input-quantidade" min="0.1" step="0.1" max="${Number(l.peso)}" value="1" required>${profile === "MICROEMPRESA" ? `<div class="valor-dinamico"><span>Total</span><strong class="preco-selecionado">${money(precoKg)}</strong></div>` : ""}</div><button type="submit" class="btn btn-primary btn-sm">${profile === "MICROEMPRESA" ? "Solicitar compra" : "Solicitar lote"}</button></form>`}
+                    ? `<div class="lote-solicitado-box"><span class="lote-solicitado-status">✓ ${req.pagamentoStatus === "PAGO" ? "Compra confirmada" : (l.finalidade === "venda" ? "Compra criada · Aguardando pagamento" : "Solicitação enviada")}</span>${(req.status === "PENDENTE" || (l.finalidade === "venda" && req.pagamentoStatus !== "PAGO")) ? `<button type="button" class="btn btn-cancelar-solicitacao" data-demo-cancel="${req.id}">Cancelar solicitação</button>` : ""}</div>`
+                    : available <= 0 ? `<span class="status-text">Estoque reservado.</span>` : `<form class="solicitar-form demo-request-form" data-lote="${l.id}"><label class="quantidade-label">Quantidade desejada</label><div class="quantidade-preco-row"><input type="number" class="input-quantidade" min="0.1" step="0.1" max="${available}" value="${Math.min(1, available)}" required>${profile === "MICROEMPRESA" ? `<div class="valor-dinamico"><span>Total</span><strong class="preco-selecionado">${money(precoKg)}</strong></div>` : ""}</div><button type="submit" class="btn btn-primary btn-sm">${profile === "MICROEMPRESA" ? "Comprar" : "Solicitar lote"}</button></form>`}
                 </div></div></div>`;
         }).join("");
         if (empty) empty.hidden = lots.length > 0;
@@ -478,23 +503,24 @@
                 const x = state();
                 const l = x.lotes.find(v => v.id === loteId);
                 const q = Number(input.value);
-                if (!l || q <= 0 || q > Number(l.peso)) { toast("Quantidade inválida."); return; }
+                if (!l || !Number.isFinite(q) || q <= 0 || q > availableWeight(x, l)) { toast("Quantidade inválida."); return; }
                 if (x.solicitacoes.some(r => r.loteId === loteId && r.perfil === profile && ["PENDENTE","ACEITA"].includes(r.status))) {
                     toast("Você já possui uma solicitação ativa para este lote.");
                     return;
                 }
                 const precoKg = profile === "MICROEMPRESA" ? Number(l.precoFinal || 0) / Number(l.pesoOriginal || l.peso || 1) : 0;
-                x.solicitacoes.push({ id: uid("sol"), loteId, perfil: profile, nome: nomes[profile], industriaPerfil: "INDUSTRIA", quantidade: q, valor: precoKg * q, status: "PENDENTE", pagamentoStatus: "AGUARDANDO", pin: null, criadoEm: new Date().toISOString() });
+                x.solicitacoes.push({ id: uid("sol"), loteId, perfil: profile, nome: nomes[profile], industriaPerfil: "INDUSTRIA", quantidade: q, valor: precoKg * q, status: l.finalidade === "venda" ? "ACEITA" : "PENDENTE", pagamentoStatus: "AGUARDANDO", pin: null, criadoEm: new Date().toISOString() });
                 save(x);
-                toast("Solicitação enviada para a indústria.");
+                toast(l.finalidade === "venda" ? "Compra criada. Escolha a forma de pagamento em Minhas solicitações." : "Solicitação enviada para a indústria.");
                 renderAll();
+                if (l.finalidade === "venda") document.querySelector('[data-target="painel-minhas"]')?.click();
             };
         });
 
         panel.querySelectorAll("[data-demo-cancel]").forEach(b => b.onclick = () => {
             const x = state();
             const r = x.solicitacoes.find(v => v.id === b.dataset.demoCancel);
-            if (!r) return;
+            if (!r || !["PENDENTE", "ACEITA"].includes(r.status) || r.pagamentoStatus === "PAGO") return;
             r.status = "CANCELADA";
             save(x);
             toast("Solicitação cancelada.");
@@ -529,6 +555,7 @@
                         <button type="button" class="btn btn-pagamento-pdf demo-pdf-link" data-demo-pdf="request" data-demo-request="${r.id}">Ver PDF</button>
                         <button type="button" class="btn btn-pagamento-pix" data-demo-pay="${r.id}">Pagar com PIX</button>
                         <button type="button" class="btn btn-pagamento-dinheiro" data-demo-pay-money="${r.id}">Pagar em dinheiro</button>
+                        <button type="button" class="btn btn-cancelar-solicitacao" data-demo-cancel-purchase="${r.id}">Cancelar compra</button>
                     </div></div>`;
                 }
             } else if (r.status === "ACEITA" && profile === "ONG") {
@@ -552,17 +579,27 @@
             }
 
             if (profile === "ONG") {
-                return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td><span class="chip chip--disponivel">${esc(r.status)}</span></td><td>${actions}</td></tr>`;
+                return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td><span class="chip chip--disponivel">${esc(requestStatus(r, l))}</span></td><td>${actions}</td></tr>`;
             }
-            return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td>${l.finalidade === "venda" ? money(r.valor) : "Gratuito"}</td><td><span class="chip chip--disponivel">${esc(r.status)}</span></td><td>${actions}</td></tr>`;
+            return `<tr><td>${esc(l.tipoTecido)}</td><td>${esc(l.industriaNome)}</td><td>${Number(r.quantidade).toLocaleString("pt-BR")} kg</td><td>${l.finalidade === "venda" ? money(r.valor) : "Gratuito"}</td><td><span class="chip chip--disponivel">${esc(requestStatus(r, l))}</span></td><td>${actions}</td></tr>`;
         }).join("");
 
         if (empty) empty.hidden = reqs.length > 0;
 
+        panel.querySelectorAll("[data-demo-cancel-purchase]").forEach(b => b.onclick = () => {
+            const x = state();
+            const r = x.solicitacoes.find(r => r.id === b.dataset.demoCancelPurchase);
+            if (!r || r.status !== "ACEITA" || r.pagamentoStatus === "PAGO") return;
+            r.status = "CANCELADA";
+            save(x);
+            toast("Compra cancelada. Estoque liberado.");
+            renderAll();
+        });
+
         panel.querySelectorAll("[data-demo-pay], [data-demo-pay-money]").forEach(b => b.onclick = () => {
             const x = state();
             const r = x.solicitacoes.find(v => v.id === (b.dataset.demoPay || b.dataset.demoPayMoney));
-            if (!r) return;
+            if (!r || r.status !== "ACEITA" || r.pagamentoStatus === "PAGO") return;
             r.pagamentoStatus = "PAGO";
             if (!r.pin) r.pin = String(Math.floor(1000 + Math.random() * 9000));
             save(x);
@@ -625,7 +662,7 @@
     function renderOrganization() {
         const s = state();
         const id = new URLSearchParams(window.location.search).get("solicitacao");
-        const r = s.solicitacoes.find(v => v.id === id && v.industriaPerfil === "INDUSTRIA" && v.status === "ACEITA");
+        const r = s.solicitacoes.find(v => v.id === id && v.industriaPerfil === "INDUSTRIA" && ["PENDENTE", "ACEITA"].includes(v.status));
         const l = r && s.lotes.find(v => v.id === r.loteId);
         if (!r || !l) {
             document.querySelector(".info-card").textContent = "Estas informações não estão mais disponíveis. Volte para solicitações.";

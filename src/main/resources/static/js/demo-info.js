@@ -76,8 +76,9 @@
 
                 texto:
                     "Aqui você acompanha as solicitações feitas por " +
-                    "ONGs e microempresas, podendo aceitar, recusar " +
-                    "e acompanhar a retirada dos materiais."
+                    "ONGs e as compras das microempresas. Nas doações, você pode " +
+                    "ver os dados da ONG e aceitar ou recusar. As vendas seguem " +
+                    "diretamente para pagamento e confirmação da retirada."
             },
 
 
@@ -107,7 +108,7 @@
 
                 texto:
                     "Aqui você encontra os materiais disponíveis para " +
-                    "venda e pode solicitar a quantidade desejada."
+                    "venda e pode comprar a quantidade desejada, sem aguardar aprovação."
             },
 
 
