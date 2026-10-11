@@ -43,6 +43,7 @@
         }
     </style>
 
+<link rel="stylesheet" href="/css/mobile.css?v=1">
 </head>
 
 <body th:attr="data-demo-mode=${demoMode},data-demo-perfil=${demoPerfil}">
@@ -706,7 +707,7 @@
     </div>
 
     <script th:src="@{/js/platform.js(v=3)}"></script>
-    <script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
+    <script th:src="@{/js/demo-info.js(v=2)}" th:if="${demoMode}"></script>
 
 
     <script>
@@ -742,6 +743,7 @@
     </script>
 
 <script th:src="@{/js/demo-local.js(v=5)}" th:if="${demoMode}"></script>
+<script src="/js/mobile.js?v=1"></script>
 </body>
 
 </html>

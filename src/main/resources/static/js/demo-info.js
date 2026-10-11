@@ -259,15 +259,11 @@
 
         try {
 
-            return (
-                localStorage.getItem(
-                    chaveStorage(setorInfo)
-                ) === "minimized"
-            );
+            var saved = localStorage.getItem(chaveStorage(setorInfo));
+            return saved === "minimized" || (!saved && window.matchMedia("(max-width: 700px)").matches);
 
         } catch (erro) {
-
-            return false;
+            return window.matchMedia("(max-width: 700px)").matches;
         }
     }
 
@@ -622,6 +618,7 @@
          */
 
         criarCaixa();
+
 
 
         /*

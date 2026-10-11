@@ -1,0 +1,82 @@
+/* Adaptação para leitura e toque em celulares. */
+@media (max-width: 900px) {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { width:100%; margin:0; }
+  .wrap, .app-main > .wrap { width:100%; padding-left:16px; padding-right:16px; min-width:0; }
+  .nav-inner { padding:14px 16px; gap:12px; flex-wrap:wrap; }
+  .nav-inner .logo { flex-shrink:0; font-size:1.15rem; }
+  .nav-inner > .btn { margin-left:auto; padding:10px 12px; font-size:.62rem; text-align:center; max-width:150px; }
+  .hero { padding-top:38px; padding-bottom:36px; }
+  .hero-grid { gap:28px; min-width:0; }
+  .hero h1 { font-size:clamp(2rem, 9vw, 3rem); line-height:1.12; }
+  .hero p.lede { font-size:1rem; line-height:1.7; }
+  .hero-cta { display:grid; grid-template-columns:1fr; gap:12px; }
+  .hero-cta .btn { width:100%; justify-content:center; text-align:center; min-height:44px; }
+  .stitch-diagram { width:100%; max-width:360px; height:auto; display:block; margin:auto; }
+  .section-pad { padding-top:40px; padding-bottom:40px; }
+  .section-head h2 { font-size:1.8rem; }
+  .app-nav-inner { padding:14px 16px; display:flex; flex-direction:column; align-items:stretch; gap:14px; }
+  .app-logo { align-self:flex-start; flex-shrink:0; }
+  .app-nav-right { display:flex; flex-wrap:wrap; gap:10px; width:100%; min-width:0; align-items:center; }
+  .role-badge { flex-shrink:0; }
+  .user-chip { min-width:0; flex:1 1 140px; gap:8px; }
+  .user-chip > span:last-child { overflow-wrap:anywhere; font-size:.8rem; line-height:1.45; }
+  .user-dot, .user-chip > img { flex-shrink:0; }
+  .app-nav-right > .btn { min-height:40px; padding:10px 12px; flex-shrink:0; margin-left:0; }
+  .top-signature-button { min-height:40px; white-space:normal; }
+  .app-main { padding-top:28px; padding-bottom:90px; }
+  .app-head h1 { font-size:clamp(1.5rem,6.6vw,2rem); line-height:1.2; }
+  .app-head p { font-size:.92rem; line-height:1.6; }
+  .dash-tabs { display:flex; flex-wrap:wrap; gap:8px; width:100%; }
+  .dash-tab { flex:1 1 120px; padding:12px 10px; min-height:44px; white-space:normal; text-align:center; }
+  .panel, .product-grid, .product-card, .product-body, .form-grid { min-width:0; max-width:100%; }
+  .product-grid, .stat-grid, .form-row-2, .form-grid { grid-template-columns:1fr; }
+  .product-foot { flex-wrap:wrap; }
+  .product-body { padding:18px; }
+  input, select, textarea { max-width:100%; font-size:16px; }
+  .field input, .field select, .field textarea { min-width:0; }
+  .form-card { padding:18px; }
+  .signature-manager__content { min-width:0; }
+  .signature-preview-box { max-width:100%; }
+  .modal-overlay { padding:12px; overflow-y:auto; align-items:center; }
+  .modal-overlay .modal { flex:0 1 auto; width:100%; max-width:420px; min-width:0; margin:auto; padding:22px 18px; max-height:calc(100dvh - 24px); overflow-y:auto; }
+  .modal h3 { padding-right:24px; }
+  .modal-close { width:32px; height:32px; top:8px; right:8px; }
+  .signature-canvas { width:100%; height:180px; margin-top:14px; }
+  .signature-modal-actions { display:flex; flex-direction:column; align-items:stretch; gap:10px; }
+  .signature-modal-actions form, .signature-modal-actions .btn { width:100%; min-height:44px; }
+  .signature-modal p { font-size:.85rem; line-height:1.55; }
+  .demo-nav-inner { display:flex; flex-wrap:wrap; gap:12px; padding:14px 16px; }
+  .demo-nav-inner > a:last-child { position:static !important; transform:none !important; margin-left:auto; font-size:.6rem !important; padding:10px !important; }
+  .demo-main { padding:32px 16px 48px; }
+  .demo-hero h1 { font-size:clamp(2rem,9vw,3rem); line-height:1.12; }
+  .demo-grid { grid-template-columns:1fr; gap:16px; }
+  .demo-card { padding:22px; }
+  .demo-note { flex-wrap:wrap; line-height:1.6; }
+  .info-page { padding:24px 16px 70px; }
+  .info-card { padding:16px; }
+  .info-grid { grid-template-columns:1fr; gap:12px; }
+  .demo-info-box { box-sizing:border-box; max-width:calc(100vw - 24px); z-index:150; max-height:45dvh; overflow-y:auto; }
+  .demo-info-box.is-minimized { width:52px; height:52px; overflow:hidden; }
+  .demo-info-box__text { text-align:left; }
+  /* Registros em cartões: todas as colunas continuam acessíveis. */
+  .lot-table.mobile-records { display:block; border:0; background:transparent; overflow:visible; box-shadow:none; }
+  .lot-table.mobile-records thead { display:none; }
+  .lot-table.mobile-records tbody { display:grid; gap:14px; width:100%; }
+  .lot-table.mobile-records tr { display:block; width:100%; border:1px solid #c9bfa1; border-radius:10px; background:#fffdf7; padding:6px 14px; }
+  .lot-table.mobile-records tbody td { display:grid; grid-template-columns:95px minmax(0,1fr); gap:10px; align-items:start; width:auto !important; min-width:0 !important; max-width:none; padding:10px 0; border-bottom:1px solid #ebe5d6; white-space:normal; overflow:visible; overflow-wrap:anywhere; }
+  .lot-table.mobile-records tbody td::before { content:attr(data-label); font:600 .62rem/1.6 'IBM Plex Mono',monospace; text-transform:uppercase; color:#626b64; }
+  .lot-table.mobile-records tbody td:last-child { display:block; border-bottom:0; }
+  .lot-table.mobile-records tbody td:last-child::before { display:block; margin-bottom:8px; }
+  .lot-table.mobile-records :is(.minhas-solicitacao-acoes,.solicitacao-aceita,.industria-aceita,.tc-actions-row,.venda-acoes,.venda-pago) { min-width:0; width:100%; display:flex; flex-wrap:wrap; gap:8px; }
+  .lot-table.mobile-records .btn { min-height:40px; white-space:normal; text-align:center; }
+  .lot-table.mobile-records .tc-icon-action { width:40px; height:40px; }
+  .lot-table.mobile-records form { min-width:0; max-width:100%; display:flex; flex-wrap:wrap; gap:8px; }
+  .lot-table.mobile-records input { min-width:0; max-width:120px; min-height:40px; }
+  .lot-table.mobile-records .empty-note { padding:14px; }
+}
+@media (max-width:900px) {
+  .lot-table.mobile-records .chip { justify-self:start; width:max-content; max-width:100%; }
+  .lot-table.mobile-records td > img { max-width:100%; }
+  .demo-info-box.is-minimized .demo-info-box__toggle { min-width:36px; min-height:36px; }
+}
