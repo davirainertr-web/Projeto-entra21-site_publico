@@ -99,3 +99,37 @@
   #painel-solicitacoes .lot-table.mobile-records .pagamento-badge--na { padding:4px 9px; }
   #painel-solicitacoes .lot-table.mobile-records td { min-width:0 !important; }
 }
+/* Correções dos limites antigos das tabelas e controles de compra. */
+@media (max-width:900px) {
+  #painel-solicitacoes { overflow:visible; min-width:0; }
+  #painel-solicitacoes .solicitacoes-industria-table.mobile-records {
+    min-width:0 !important; width:100% !important; max-width:100%;
+  }
+  .lot-table.mobile-records tbody tr { min-width:0; max-width:100%; }
+  .lot-table.mobile-records tbody td { white-space:normal !important; word-break:normal; overflow-wrap:anywhere; }
+  .product-foot .demo-request-form { display:grid !important; grid-template-columns:minmax(0,1fr) !important; width:100% !important; min-width:0 !important; }
+  .product-foot .demo-request-form .quantidade-preco-row { width:100%; min-width:0; grid-template-columns:minmax(0,1fr) !important; }
+  .product-foot .demo-request-form .input-quantidade { max-width:100%; }
+  .product-foot .demo-request-form > .btn { width:100% !important; min-height:44px; }
+  .valor-dinamico { min-width:0; flex-wrap:wrap; }
+  .valor-dinamico strong { overflow-wrap:anywhere; }
+  .lot-table.mobile-records .venda-acoes {
+    display:grid !important; grid-template-columns:minmax(0,1fr) !important;
+    width:100% !important; min-width:0 !important; gap:8px !important;
+  }
+  .lot-table.mobile-records .venda-acoes > .btn,
+  .lot-table.mobile-records .venda-acoes > .pagamento-form,
+  .lot-table.mobile-records .venda-acoes .pagamento-form > .btn {
+    width:100% !important; min-width:0 !important; max-width:100% !important;
+    flex:none !important; box-sizing:border-box; white-space:normal !important;
+    overflow-wrap:anywhere; line-height:1.4 !important; padding:12px !important;
+    height:auto !important; min-height:44px; text-align:center; justify-content:center;
+  }
+  .tc-icon-action[data-tooltip]::after { display:none; }
+}
+.mobile-action-tooltip {
+  position:fixed; z-index:500; pointer-events:none;
+  max-width:calc(100vw - 16px); padding:6px 9px; border-radius:5px;
+  background:#151d19; color:#f6f2e6; font:600 12px/1.4 'Manrope',sans-serif;
+  box-shadow:0 3px 10px rgba(0,0,0,.15);
+}
