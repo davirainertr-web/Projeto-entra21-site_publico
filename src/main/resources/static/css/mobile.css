@@ -133,3 +133,27 @@
   background:#151d19; color:#f6f2e6; font:600 12px/1.4 'Manrope',sans-serif;
   box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
+
+/* Compra paga: preserva o PIN dentro do cartao em telas pequenas. */
+@media (max-width:900px) {
+  body[data-demo-perfil="MICROEMPRESA"] #painel-minhas .lot-table.mobile-records .venda-pago {
+    flex-wrap:wrap !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+  body[data-demo-perfil="MICROEMPRESA"] #painel-minhas .lot-table.mobile-records .venda-pago > * {
+    flex:0 1 auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box;
+    white-space:normal !important;
+    overflow-wrap:anywhere;
+  }
+  body[data-demo-perfil="MICROEMPRESA"] #painel-minhas .lot-table.mobile-records .venda-pago .pin-display {
+    display:inline-flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:5px;
+  }
+}

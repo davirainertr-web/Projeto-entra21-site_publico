@@ -261,7 +261,7 @@
         if (!panel) return;
         const body = panel.querySelector("tbody");
         const empty = panel.querySelector(".empty-note");
-        const lots = s.lotes.filter(l => l.industriaPerfil === "INDUSTRIA");
+        const lots = s.lotes.filter(l => l.industriaPerfil === "INDUSTRIA" && Number(l.peso) > 0);
         if (!body) return;
 
         body.innerHTML = lots.map(l => `
