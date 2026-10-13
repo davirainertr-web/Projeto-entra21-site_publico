@@ -76,8 +76,9 @@
 
                 texto:
                     "Aqui você acompanha as solicitações feitas por " +
-                    "ONGs e microempresas, podendo aceitar, recusar " +
-                    "e acompanhar a retirada dos materiais."
+                    "ONGs e as compras das microempresas. Nas doações, você pode " +
+                    "ver os dados da ONG e aceitar ou recusar. As vendas seguem " +
+                    "diretamente para pagamento e confirmação da retirada."
             },
 
 
@@ -107,7 +108,7 @@
 
                 texto:
                     "Aqui você encontra os materiais disponíveis para " +
-                    "venda e pode solicitar a quantidade desejada."
+                    "venda e pode comprar a quantidade desejada, sem aguardar aprovação."
             },
 
 
@@ -259,15 +260,11 @@
 
         try {
 
-            return (
-                localStorage.getItem(
-                    chaveStorage(setorInfo)
-                ) === "minimized"
-            );
+            var saved = localStorage.getItem(chaveStorage(setorInfo));
+            return saved === "minimized" || (!saved && window.matchMedia("(max-width: 700px)").matches);
 
         } catch (erro) {
-
-            return false;
+            return window.matchMedia("(max-width: 700px)").matches;
         }
     }
 
@@ -622,6 +619,7 @@
          */
 
         criarCaixa();
+
 
 
         /*

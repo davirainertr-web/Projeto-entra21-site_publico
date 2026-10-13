@@ -17,7 +17,7 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 
     <link rel="stylesheet" th:href="@{/css/platform.css}">
-    <link rel="stylesheet" th:href="@{/css/texciclo-pagamento.css(v=7)}">
+    <link rel="stylesheet" th:href="@{/css/texciclo-pagamento.css}">
     <link rel="stylesheet" th:href="@{/css/demo-info.css}" th:if="${demoMode}">
 
     <style>
@@ -43,6 +43,7 @@
         }
     </style>
 
+<link rel="stylesheet" href="/css/mobile.css?v=3">
 </head>
 
 <body th:attr="data-demo-mode=${demoMode},data-demo-perfil=${demoPerfil}">
@@ -706,7 +707,7 @@
     </div>
 
     <script th:src="@{/js/platform.js(v=3)}"></script>
-    <script th:src="@{/js/demo-info.js}" th:if="${demoMode}"></script>
+    <script th:src="@{/js/demo-info.js(v=3)}" th:if="${demoMode}"></script>
 
 
     <script>
@@ -741,7 +742,8 @@
         });
     </script>
 
-<script th:src="@{/js/demo-local.js(v=8)}" th:if="${demoMode}"></script>
+<script th:src="@{/js/demo-local.js(v=6)}" th:if="${demoMode}"></script>
+<script src="/js/mobile.js?v=2"></script>
 </body>
 
 </html>
