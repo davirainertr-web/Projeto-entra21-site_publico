@@ -12,17 +12,6 @@ Isso significa que:
 - outro navegador/dispositivo começa com uma demonstração independente;
 - os dados locais podem desaparecer se o usuário limpar os dados do navegador.
 
-## Taxa de monetização
-
-Nas vendas, a indústria informa o valor que deseja receber. O sistema aplica uma taxa de operação de 10% e mostra o valor final para a microempresa.
-
-Exemplo:
-- valor informado pela indústria: R$ 100,00
-- taxa de 10%: R$ 10,00
-- valor final: R$ 110,00
-
-A taxa não é aplicada a doações.
-
 ## Render
 
 Environment Variables:
